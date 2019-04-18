@@ -1,0 +1,11 @@
+package com.bailey.rod.kotlinkoans.i_introduction._1_Java_To_Kotlin_Converter
+
+import junit.framework.Assert.assertEquals
+import org.junit.Test
+
+class N01JavaToKotlinConverterKtTest {
+    @Test
+    fun collection() {
+        assertEquals("{1, 2, 3, 42, 555}", task1(listOf(1, 2, 3, 42, 555)))
+    }
+}
