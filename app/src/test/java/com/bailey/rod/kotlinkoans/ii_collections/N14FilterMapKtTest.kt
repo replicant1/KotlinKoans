@@ -1,9 +1,7 @@
-package N14FilterMapKtTest.kt
+package com.bailey.rod.kotlinkoans.ii_collections
 
-import com.bailey.rod.kotlinkoans.ii_collections.*
 import org.junit.Test
 import kotlin.test.assertEquals
-
 
 class N14FilterMapKtTest {
     @Test
