@@ -2,9 +2,14 @@ package com.bailey.rod.kotlinkoans.iii_conventions
 
 data class MyDate(val year: Int, val month: Int, val dayOfMonth: Int) : Comparable<MyDate> {
     override fun compareTo(other: MyDate): Int {
-        val thisInt = year + month + dayOfMonth
-        val otherInt = other.year + other.month + other.dayOfMonth
-        return thisInt - otherInt
+        var result: Int = year - other.year
+        if (result == 0) {
+            result = month - other.month
+            if (result == 0) {
+                result = dayOfMonth - other.dayOfMonth
+            }
+        }
+       return result
     }
 }
 
@@ -16,4 +21,8 @@ enum class TimeInterval {
     YEAR
 }
 
-class DateRange(val start: MyDate, val endInclusive: MyDate)
+class DateRange(val start: MyDate, val endInclusive: MyDate) {
+    operator fun contains(d: MyDate) : Boolean {
+        return (start.compareTo(d) <= 0) && (endInclusive.compareTo(d) >= 0)
+    }
+}
