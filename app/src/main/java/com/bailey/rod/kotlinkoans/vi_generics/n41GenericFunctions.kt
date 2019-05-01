@@ -24,27 +24,32 @@ fun List<String>.partitionWordsAndLines(): Pair<List<String>, List<String>> {
 }
 
 fun Set<Char>.partitionLettersAndOtherSymbols(): Pair<Set<Char>, Set<Char>> {
-    return partitionTo(HashSet<Char>(), HashSet()) { c -> c in 'a'..'z' || c in 'A'..'Z'}
-//	return Pair(emptySet(), emptySet())
+	return partitionTo(HashSet<Char>(), HashSet()) { c -> c in 'a'..'z' || c in 'A'..'Z' }
 }
 
-fun List<String>.partitionTo(array1: ArrayList<String> ,array2 : ArrayList<String>, p_func: (String) -> Boolean) :
-		Pair<List<String>,List<String>> {
-	val (partition1, partition2) = this.partition(p_func);
-    partition1.toCollection(array1)
-	partition2.toCollection(array2)
-	return Pair(partition1, partition2)
+//fun List<String>.partitionTo(array1: MutableList<String> ,array2 : MutableList<String>, p_func: (String) ->
+//Boolean) : Pair<List<String>,List<String>> {
+//	val (partition1, partition2) = this.partition(p_func);
+//    partition1.toCollection(array1)
+//	partition2.toCollection(array2)
+//	return Pair(partition1, partition2)
+//}
+//
+//fun Set<Char>.partitionTo(set1: MutableSet<Char>, set2: MutableSet<Char>, p_func: (Char) -> Boolean) :
+//		Pair<Set<Char>, Set<Char>> {
+//	val (partition1, partition2) = this.partition(p_func)
+//	partition1.toCollection(set1)
+//	partition2.toCollection(set2)
+//	return Pair(set1, set2)
+//}
+
+fun <T, C : kotlin.collections.Collection<T>, M : kotlin.collections.MutableCollection<T>> C.partitionTo(
+		c1: M, c2: M, p_func: (T) -> Boolean): Pair<C, C> {
+	val (p1, p2) = this.partition(p_func)
+	p1.toCollection(c1)
+	p2.toCollection(c2)
+	return Pair(c1 as C, c2 as C)
 }
-
-fun Set<Char>.partitionTo(set1: HashSet<Char>, set2: HashSet<Char>, p_func: (Char) -> Boolean) :
-		Pair<Set<Char>, Set<Char>> {
-	val (partition1, partition2) = this.partition(p_func)
-	partition1.toCollection(set1)
-	partition2.toCollection(set2)
-	return Pair(set1, set2)
-}
-
-
 
 
 
