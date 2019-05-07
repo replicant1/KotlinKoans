@@ -14,22 +14,22 @@ fun arrayManipulation(n: Int, operations: Array<Array<Int>>): Long {
 	val initialRun: Run = Run(Range(1, n), 0)
 	runs.add(initialRun)
 
-	println("Initial (zero) run = ${initialRun}")
+	//println("Initial (zero) run = ${initialRun}")
 
-	for (opInts in operations) {
+	for ((opIndex, opInts) in operations.withIndex()) {
 		println("-------------------------------------------------------")
 		val op = Operation(Range(opInts[0], opInts[1]), opInts[2])
-		println("OPERATION: ${op}")
+		println("OP ${opIndex} / ${operations.size}: ${op}")
 
 		// Find those runs that overlap the operation's range
 		val runsInOpRange: Set<Run> = findRunsInRange(runs, op.range)
-		println("runsInOpRange: ${runsInOpRange}")
+		//println("runsInOpRange: ${runsInOpRange}")
 
 		// Find those runs that DON'T overlap the operations range
 		val runsOutOfOpRange = HashSet<Run>()
 		runsOutOfOpRange.addAll(runs)
 		runsOutOfOpRange.removeAll(runsInOpRange)
-		println("runsOutOfOpRange: ${runsOutOfOpRange}")
+		//println("runsOutOfOpRange: ${runsOutOfOpRange}")
 
 		// Apply operation to all runs in range of the operation
 		val operatedRuns = applyOpToRuns(op, runsInOpRange)
@@ -40,11 +40,7 @@ fun arrayManipulation(n: Int, operations: Array<Array<Int>>): Long {
 		runs.addAll(operatedRuns)
 	}
 
-	println("=== FINAL RUNS ===")
-	for (r in runs) {
-		println(r)
-		println("------")
-	}
+	println(runs)
 
 	return findMaxRunValue(runs)
 }
@@ -78,11 +74,11 @@ fun applyOpToRuns(op: Operation, runsInOpRange: Set<Run>): Set<Run> {
 	val appliedRuns: MutableSet<Run> = HashSet()
 
 	for (run in runsInOpRange) {
-		println("APPLYING OPERATION ${op} TO RUN ${run}")
+		//println("APPLYING ${op} TO ${run}")
 		if (run.range.contains(op.range)) {
 			appliedRuns.addAll(applyWhenRunContainsOp(run, op))
 		} else if (run.range.isContainedBy(op.range)) {
-			println("Is contained by op range")
+			appliedRuns.addAll(applyWhenRunIsContainedByOp(run, op))
 		} else if (run.range.containsLow(op.range)) {
 			appliedRuns.addAll(applyWhenRunContainsOpLowOnly(run, op))
 		} else if (run.range.containsHigh(op.range)) {
@@ -93,8 +89,19 @@ fun applyOpToRuns(op: Operation, runsInOpRange: Set<Run>): Set<Run> {
 	return appliedRuns
 }
 
+fun applyWhenRunIsContainedByOp(run: Run, op: Operation): Set<Run> {
+	//println("Enter applyWhenRunIsContainedByOp with run=${run} and op=${op}")
+	var result: MutableSet<Run> = HashSet()
+
+	// Run within the run.range
+	result.add(Run(run.range, run.value + op.toAdd))
+
+	//println("Exit applyWhenRunIsContainedByOp with ${result}")
+	return result
+}
+
 fun applyWhenRunContainsOpHighOnly(run: Run, op: Operation): Set<Run> {
-	println("Enter applyWhenRunContainsOpHighOnly with run=${run} and op=${op}")
+	//println("Enter applyWhenRunContainsOpHighOnly with run=${run} and op=${op}")
 	val result: MutableSet<Run> = HashSet()
 
 	// Run after the op.range ends
@@ -105,13 +112,13 @@ fun applyWhenRunContainsOpHighOnly(run: Run, op: Operation): Set<Run> {
 	// Run within the op.range
 	result.add(Run(Range(run.range.low, op.range.high), run.value + op.toAdd))
 
-	println("Exit applyWhenRunContainsOpHighOnly with ${result}")
+	//println("Exit applyWhenRunContainsOpHighOnly with ${result}")
 
 	return result
 }
 
 fun applyWhenRunContainsOpLowOnly(run: Run, op: Operation): Set<Run> {
-	println("Enter applyWhenRunCongtainsOpLowOnly with run=${run} and op=${op}")
+	//println("Enter applyWhenRunCongtainsOpLowOnly with run=${run} and op=${op}")
 	val result: MutableSet<Run> = HashSet()
 
 	// Run before the op.range starts
@@ -122,13 +129,13 @@ fun applyWhenRunContainsOpLowOnly(run: Run, op: Operation): Set<Run> {
 	// Run within the op.range
 	result.add(Run(Range(op.range.low, run.range.high), run.value + op.toAdd))
 
-	println("Exit applyWhenRunContainsOpLowOnly with ${result}")
+	//println("Exit applyWhenRunContainsOpLowOnly with ${result}")
 
 	return result
 }
 
 fun applyWhenRunContainsOp(run: Run, op: Operation): Set<Run> {
-	println("Enter applyWhenRunContainsOp because ${run} contains ${op}")
+	//println("Enter applyWhenRunContainsOp because ${run} contains ${op}")
 	val result: MutableSet<Run> = HashSet()
 
 	// Run before the op.range
@@ -144,7 +151,7 @@ fun applyWhenRunContainsOp(run: Run, op: Operation): Set<Run> {
 	// Run within the op.range
 	result.add(Run(op.range, run.value + op.toAdd))
 
-	println("Exit applyWhenRunContainsOp returns ${result}")
+	//println("Exit applyWhenRunContainsOp returns ${result}")
 
 	return result
 }
@@ -179,6 +186,10 @@ fun findRunsInRange(runs: Set<Run>, range: Range): Set<Run> {
  * [low] must be [high]
  */
 data class Range(val low: Int, val high: Int) {
+
+	override fun toString(): String {
+		return "[${low}-${high}]"
+	}
 
 	fun sameLow(other: Range): Boolean {
 		return low == other.low
@@ -223,9 +234,17 @@ data class Range(val low: Int, val high: Int) {
 	}
 }
 
-data class Run(val range: Range, val value: Long)
+data class Run(val range: Range, val value: Long) {
+	override fun toString(): String {
+		return "${range}=${value}"
+	}
+}
 
-data class Operation(val range: Range, val toAdd: Int)
+data class Operation(val range: Range, val toAdd: Int) {
+	override fun toString(): String {
+		return "${range}+${toAdd}"
+	}
+}
 
 class ArrayManipulation {
 	companion object {
@@ -298,7 +317,7 @@ class ArrayManipulation {
 		// Correct answer = 7542539201
 		//                  7542539201
 		val scan = Scanner(File("/Users/rodbailey/AndroidStudioProjects/KotlinKoans/app/src/test/java/com" +
-				"/bailey/rod/hackerrank/arrays/input02.txt"))
+				"/bailey/rod/hackerrank/arrays/input04.txt"))
 		val nm = scan.nextLine().split(" ")
 		val n = nm[0].trim().toInt()
 		val m = nm[1].trim().toInt()
