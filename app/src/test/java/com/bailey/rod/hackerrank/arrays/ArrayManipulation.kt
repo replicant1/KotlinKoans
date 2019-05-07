@@ -11,7 +11,7 @@ fun arrayManipulation(n: Int, operations: Array<Array<Int>>): Long {
 	val runs: MutableSet<Run> = HashSet()
 
 	// Array is filled with zeroes to begin with
-	val initialRun: Run = Run(Range(1, n), 0)
+	val initialRun = Run(Range(1, n), 0)
 	runs.add(initialRun)
 
 	//println("Initial (zero) run = ${initialRun}")
@@ -299,16 +299,17 @@ class ArrayManipulation {
 	@Test
 	fun main() {
 		// input01 = 882
-		// input04  = 7542539201
-		// input05  = 7496167325
-		// input06  = 7515267971
-		// input07  = 2497169732
+		// input04 = 7542539201
+		// input05 = 7496167325
+		// input06 = 7515267971
+		// input07 = 2497169732
 		// input08 = 2484930878
 		// input09 = 2501448788
 		// input10 = 2510535321
 		// input11 = 2506721627
+
 		val scan = Scanner(File("/Users/rodbailey/AndroidStudioProjects/KotlinKoans/app/src/test/java/com" +
-				"/bailey/rod/hackerrank/arrays/input06.txt"))
+				"/bailey/rod/hackerrank/arrays/input07.txt"))
 		val nm = scan.nextLine().split(" ")
 		val n = nm[0].trim().toInt()
 		val m = nm[1].trim().toInt()
