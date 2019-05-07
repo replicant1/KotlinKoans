@@ -17,9 +17,9 @@ fun arrayManipulation(n: Int, operations: Array<Array<Int>>): Long {
 	//println("Initial (zero) run = ${initialRun}")
 
 	for ((opIndex, opInts) in operations.withIndex()) {
-		println("-------------------------------------------------------")
+		//println("-------------------------------------------------------")
 		val op = Operation(Range(opInts[0], opInts[1]), opInts[2])
-		println("OP ${opIndex} / ${operations.size}: ${op}")
+		//println("OP ${opIndex} / ${operations.size}: ${op}")
 
 		// Find those runs that overlap the operation's range
 		val runsInOpRange: Set<Run> = findRunsInRange(runs, op.range)
@@ -191,22 +191,6 @@ data class Range(val low: Int, val high: Int) {
 		return "[${low}-${high}]"
 	}
 
-	fun sameLow(other: Range): Boolean {
-		return low == other.low
-	}
-
-	fun greaterLow(other: Range): Boolean {
-		return low > other.low
-	}
-
-	fun sameHigh(other: Range): Boolean {
-		return high == other.high
-	}
-
-	fun greaterHigh(other: Range): Boolean {
-		return high > other.high
-	}
-
 	fun containsLow(other: Range): Boolean {
 		val result = (other.low >= low) && (other.low <= high)
 		return result
@@ -314,10 +298,17 @@ class ArrayManipulation {
 
 	@Test
 	fun main() {
-		// Correct answer = 7542539201
-		//                  7542539201
+		// input01 = 882
+		// input04  = 7542539201
+		// input05  = 7496167325
+		// input06  = 7515267971
+		// input07  = 2497169732
+		// input08 = 2484930878
+		// input09 = 2501448788
+		// input10 = 2510535321
+		// input11 = 2506721627
 		val scan = Scanner(File("/Users/rodbailey/AndroidStudioProjects/KotlinKoans/app/src/test/java/com" +
-				"/bailey/rod/hackerrank/arrays/input04.txt"))
+				"/bailey/rod/hackerrank/arrays/input06.txt"))
 		val nm = scan.nextLine().split(" ")
 		val n = nm[0].trim().toInt()
 		val m = nm[1].trim().toInt()
