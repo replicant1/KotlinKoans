@@ -43,7 +43,9 @@ fun checkMagazine(magazine: Array<String>, note: Array<String>) {
 
 class RansomNote {
 
-	// input01 = No
+	// mom = 2
+	// abba = 4, 0
+	// ifail = 2, 0
 
 	@Test
 	fun doTest() {
