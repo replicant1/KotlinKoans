@@ -5,30 +5,38 @@ import java.io.File
 import java.util.*
 import kotlin.collections.HashMap
 
+const val debug = false
+
 // Complete the sherlockAndAnagrams function below.
 fun sherlockAndAnagrams(s: String): Int {
 	var numPairsAllLengths = 0
 
-	for (ssLength in 1..(s.length-1)) {
-		println("---- Substring length ${ssLength} ----")
+	for (ssLength in 1..(s.length - 1)) {
+		if (debug)
+			println("---- Substring length ${ssLength} ----")
 		val substrings = findAllSubstringsOfLength(s, ssLength)
-		println("Found ${substrings.size} substrings of length ${ssLength}")
+
+		if (debug)
+			println("Found ${substrings.size} substrings of length ${ssLength}")
 		val sssToCount: MutableMap<String, Int> = HashMap() // sss = sorted substring
 
 		for (i in 0..(substrings.size - 1)) {
-			println("substring[${i}] = \"${substrings[i]}\"")
+			if (debug)
+				println("substring[${i}] = \"${substrings[i]}\"")
 			val sortedSubstring = String(substrings[i].toCharArray().sortedArray())
 			incrementStringCount(sortedSubstring, sssToCount)
 		}
 
-		println("Sorted substring map ${sssToCount}")
+		if (debug)
+			println("Sorted substring map ${sssToCount}")
 
 		sssToCount.forEach({
 			val sortedSubstring = it.key
 			val sortedSubstringCount = it.value
 			if (sortedSubstringCount > 0) {
 				val numPairs = nChoose2(sortedSubstringCount)
-				println("\"${sortedSubstring}\" => ${sortedSubstringCount}. #pairs=${numPairs}")
+				if (debug)
+					println("\"${sortedSubstring}\" => ${sortedSubstringCount}. #pairs=${numPairs}")
 				numPairsAllLengths += numPairs
 			}
 		})
@@ -41,7 +49,7 @@ fun sherlockAndAnagrams(s: String): Int {
 /**
  * @return nC2 ("n choose 2") is the number of pair-wise selections from [n]
  */
-fun nChoose2(n:Int) : Int {
+fun nChoose2(n: Int): Int {
 	return n * (n - 1) / 2
 }
 
@@ -51,7 +59,7 @@ fun nChoose2(n:Int) : Int {
 fun incrementStringCount(str: String, strToCount: MutableMap<String, Int>) {
 	var count = strToCount.getOrDefault(str, 0)
 	count++
-	strToCount.put(str,  count)
+	strToCount.put(str, count)
 }
 
 /**
@@ -79,13 +87,14 @@ class Sherlock {
 	@Test
 	fun main() {
 		val scan = Scanner(File("/Users/rodbailey/AndroidStudioProjects/KotlinKoans/app/src/test/java/com" +
-				"/bailey/rod/hackerrank/maps/anagrams/cdcd.txt"))
+				"/bailey/rod/hackerrank/maps/anagrams/abba.txt"))
 		val q = scan.nextLine().trim().toInt()
 
 		for (qItr in 1..q) {
 			val s = scan.nextLine()
 			val result = sherlockAndAnagrams(s)
-			println("**** NUMBER OF ANAGRAMATIC PAIRS IN \"${s}\" ****")
+			if (debug)
+				println("**** NUMBER OF ANAGRAMATIC PAIRS IN \"${s}\" ****")
 			println(result)
 		}
 	}
