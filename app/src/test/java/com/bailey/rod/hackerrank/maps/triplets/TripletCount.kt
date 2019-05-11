@@ -3,75 +3,49 @@ package com.bailey.rod.hackerrank.maps.triplets
 import org.junit.Test
 import java.io.File
 import java.util.*
+import kotlin.collections.HashMap
 
-const val debug = false
-
+const val debug = true
 
 /**
- * @param Numbers in monotonically increasing order
- * @param r Ratio between successive elements of triplets
- * @return Number of tripets of form (r^x, r^(x+1), r^(x+2)
+ * @return The number of triplets (A,B,C) in 'arr' where A,B and C are at increasing indexes in 'arr' and
+ * form a geometric progress with a common 'ratio'.
  */
-fun countTriplets(arr: Array<Long>, r: Long): Long {
-	// If r^p = arr[i], powerToCount(p) += 1 (i is not stored)
-	val powerToCount: MutableMap<Long, Long> = TreeMap()
-	var result: Long = 0
+fun countTriplets(arr: Array<Long>, ratio: Long): Long {
+	// key = the second element of a triplet that is 'wanted' by some first element we have found in [arr]
+	// value = the number of first elements waiting on [key] to be their second element in a triplet
+	// e.g. 9 -> 4 means that there are 4 partial, single element triplets waiting on a '9' to appear so
+	// that they can use it as their second element
+	val secondElementsWanted = HashMap<Long, Long>()
 
-	if (debug)
-		println("countTriplets: r=${r}, arr=${arr.toList()}")
+	// key = the third element of a triplet that is 'wanted' by some first+second element pair already found in [arr]
+	// value = the number of first+second element pairs waiting on [key] to be their third element in a triplet
+	// e.g. 27 -> 2 means that there are 2 partial, two element triplets waiting on a '27' to appear in 'arr'
+	// so that they can use it as their third and final element.
+	val thirdElementsWanted = HashMap<Long, Long>()
 
-	// Populate the [powerToCount] map based on [arr] contents
-	for (num in arr) {
-		// log_r(num) = log_10(num) / log_10(r)
-		val power = log(num, r)
-		var count = powerToCount.getOrDefault(power, 0)
-		count++
-		powerToCount.put(power, count)
+	var numTriplets: Long = 0
 
-		if (debug)
-			println("num=${num}, power=${power}, count=${count}")
-	}
-
-	if (debug)
-		println("powerToCount=${powerToCount}")
-
-	// Count the triplets (r^a, r^b, r^c) where a+1=b and b+1=c
-	val powers:Array<Long> = powerToCount.keys.toTypedArray()
-
-	if (debug)
-		println("powers=${powers.toList()}")
-
-	for (i in 0..(powers.size - 3)) {
-		if (debug)
-			println("powers[${i}]=${powers[i]}, powers[${i+1}]=${powers[i+1]}, powers[${i+2}]=${powers[i+2]}")
-
-		if (((powers[i] + 1) == powers[i+1]) && ((powers[i+1] + 1) == powers[i+2])) {
-			val count_i: Long = powerToCount[powers[i]] ?: 0
-			val count_ip1: Long = powerToCount[powers[i + 1]] ?: 0
-			val count_ip2: Long = powerToCount[powers[i + 2]] ?: 0
-			val numTriplets = count_i * count_ip1 * count_ip2
-
-			if (debug)
-				println("triplet: [${i}]=${count_i}, [${i+1}]=${count_ip1}, [${i+2}]=${count_ip2}")
-
-			result += numTriplets
+	// Iterate through each number 'a' in 'arr' asking "what if 'a' is A, B or C in the triplet (A,B,C)?"
+	for (a in arr) {
+		// Could this be the third and final element of any triplets? If so, we can add *all* of those triplets
+		// to the total list of triplets found in 'arr'.
+		if (thirdElementsWanted.containsKey(a)) {
+			numTriplets += thirdElementsWanted.getOrDefault(a, 0)
 		}
+
+		// Could this be the second element of any triplets? If so we only need the third element of the triplet to
+		// complete *all* the pending, 2/3 complete triplets
+		if (secondElementsWanted.containsKey(a)) {
+			val old: Long = thirdElementsWanted.getOrDefault(a * ratio, 0)
+			thirdElementsWanted.put(a * ratio, old + secondElementsWanted.getOrDefault(a, 0))
+		}
+
+		// Any element can be the first element of a triplet
+		secondElementsWanted.put(a * ratio, secondElementsWanted.getOrDefault(a * ratio, 0) + 1)
 	}
 
-	return result
-}
-
-fun log(x: Long, base: Long) : Long {
-	val logx_10 = Math.log(x.toDouble())
-	val logbase_10 = Math.log(base.toDouble())
-	val resultDouble = (logx_10/ logbase_10)
-	val resultLong = resultDouble.toLong()
-	if (debug) {
-		println("Log of ${x} base ${base}: logx_10=${logx_10}, logbase_10=${logbase_10}, " +
-				"resultDouble=${resultDouble}, " +
-				"resultLong=${resultLong}")
-	}
-	return resultLong
+	return numTriplets
 }
 
 class TripletCount {
@@ -80,6 +54,7 @@ class TripletCount {
 		// example01 = 2
 		// example02 = 6
 		// example03 = 4
+		// example04 = 3
 		// input02 = 161700
 		// input03 = 166661666700000
 		// input04 = 0
@@ -89,7 +64,7 @@ class TripletCount {
 		// input10 = 1339347780085
 		// input11 = 1667018988625
 		val scan = Scanner(File("/Users/rodbailey/AndroidStudioProjects/KotlinKoans/app/src/test/java/com" +
-				"/bailey/rod/hackerrank/maps/triplets/example03.txt"))
+				"/bailey/rod/hackerrank/maps/triplets/input11.txt"))
 		val nr = scan.nextLine().split(" ")
 		val n = nr[0].trim().toInt()
 		val r = nr[1].trim().toLong()
