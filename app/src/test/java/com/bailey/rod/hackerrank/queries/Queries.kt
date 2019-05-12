@@ -4,8 +4,9 @@ import org.junit.Test
 import java.io.File
 import java.util.*
 import kotlin.collections.HashMap
+import kotlin.collections.HashSet
 
-const val debug = true
+const val debug = false
 
 /**
  * @param queries 2D array. Each row is an instruction. [q][0] = op code
@@ -45,12 +46,16 @@ fun freqQuery(queries: Array<Array<Int>>): Array<Int> {
 				// 1) Remove operand from the set of operands that have the current count
 				// 2) Add operand to the set of operands that have the current count + 1
 				if (countToOperands.containsKey(oldOperandCount)) {
-					countToOperands.get(oldOperandCount)?.remove(operand)
+					val oldOperands = countToOperands.get(oldOperandCount) ?: HashSet()
+					oldOperands.remove(operand)
+					if (oldOperands.isEmpty()) {
+						countToOperands.remove(oldOperandCount)
+					}
 				}
 
-				val operandsWithNewCount = countToOperands.getOrDefault(newOperandCount, HashSet<Int>())
+				val operandsWithNewCount = countToOperands.getOrDefault(newOperandCount, HashSet())
 				operandsWithNewCount.add(operand)
-				countToOperands.put(newOperandCount, operandsWithNewCount)
+				countToOperands.put(newOperandCount, operandsWithNewCount) // Only necessary first time
 
 				if (debug) {
 					println("operandToCount=${operandToCount}")
@@ -61,31 +66,41 @@ fun freqQuery(queries: Array<Array<Int>>): Array<Int> {
 			2 -> {
 				// '2' = Delete the operand (if present).
 				// Update 'operandToCount' to have one less occurrence of the operand
-				val oldOperandCount = operandToCount.getOrDefault(operand, 0)
-				val newOperandCount = oldOperandCount - 1
-				if (newOperandCount == 0) {
-					operandToCount.remove(operand)
+				if (operandToCount.containsKey(operand)) {
+					val oldOperandCount = operandToCount.getOrDefault(operand, 0)
+					val newOperandCount = oldOperandCount - 1
+					if (newOperandCount == 0) {
+						operandToCount.remove(operand)
+					} else {
+						operandToCount.put(operand, newOperandCount)
+					}
+
+					if (debug)
+						println("oldOperandCount=${oldOperandCount}, newOperandCount=${newOperandCount}")
+
+					// Update 'countToOperands' in two steps
+					// 1) Remove operand from the set of operands that have the current count
+					// 2) Add operand to the set of operands that have the current count - 1
+					if (countToOperands.containsKey(oldOperandCount)) {
+						val oldOperands = countToOperands.get(oldOperandCount) ?: HashSet()
+						oldOperands.remove(operand)
+						if (oldOperands.isEmpty()) {
+							countToOperands.remove(oldOperandCount)
+						}
+					}
+
+					val operandsWithNewCount = countToOperands.getOrDefault(newOperandCount, HashSet())
+					operandsWithNewCount.add(operand)
+					countToOperands.put(newOperandCount, operandsWithNewCount) // Only necessary first time
+
+					if (debug) {
+						println("operandToCount=${operandToCount}")
+						println("countToOperands=${countToOperands}")
+					}
 				} else {
-					operandToCount.put(operand, newOperandCount)
-				}
-
-				if (debug)
-					println("oldOperandCount=${oldOperandCount}, newOperandCount=${newOperandCount}")
-
-				// Update 'countToOperands' in two steps
-				// 1) Remove operand from the set of operands that have the current count
-				// 2) Add operand to the set of operands that have the current count - 1
-				if (countToOperands.containsKey(oldOperandCount)) {
-					countToOperands.get(oldOperandCount)?.remove(oldOperandCount)
-				}
-
-				val operandsWithNewCount = countToOperands.getOrDefault(newOperandCount, HashSet<Int>())
-				operandsWithNewCount.add(operand)
-				countToOperands.put(newOperandCount, operandsWithNewCount)
-
-				if (debug) {
-					println("operandToCount=${operandToCount}")
-					println("countToOperands=${countToOperands}")
+					if (debug) {
+						println("Operand ${operand} is not present")
+					}
 				}
 			}
 
@@ -121,5 +136,8 @@ class Queries {
 		val ans = freqQuery(queries)
 
 		println(ans.joinToString("\n"))
+
+//		println("Int.MAX_VALUE=${Int.MAX_VALUE}")
+//		println("Long.MAX_VALUE=${Long.MAX_VALUE}")
 	}
 }
