@@ -1,13 +1,10 @@
-package com.bailey.rod.hackerrank.queries
+package com.bailey.rod.hackerrank.maps.queries
 
 import org.junit.Test
 import java.io.*
-import java.util.*
 import kotlin.collections.ArrayList
 import kotlin.collections.HashMap
 import kotlin.collections.HashSet
-import com.google.common.io.Flushables.flush
-
 
 
 const val debug = false
@@ -131,7 +128,7 @@ class Queries {
 	fun main() {
 //		val bufReader = BufferedReader(InputStreamReader(System.`in`))
 		val bufReader = BufferedReader(FileReader("/Users/rodbailey/AndroidStudioProjects/KotlinKoans/app/src/test/java/com" +
-				"/bailey/rod/hackerrank/queries/input09.txt"))
+				"/bailey/rod/hackerrank/maps/queries/input09.txt"))
 		val numQueries = bufReader.readLine().trim().toInt()
 		val queries = Array<Array<Int>>(numQueries, { Array<Int>(2, { 0 }) })
 
