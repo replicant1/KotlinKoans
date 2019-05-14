@@ -18,60 +18,63 @@ fun activityNotifications(spend: Array<Int>, windowSize: Int): Int {
 		println("spend.size=${spend.size}, windowSize=${windowSize}")
 	}
 
+	var windowSizeEven = if (windowSize % 2 == 0) true else false
+	var medianIdx = -1
+	var lMedianIdx = -1
+	var rMedianIdx = -1
+
+	if (windowSizeEven) {
+		lMedianIdx = (windowSize / 2) - 1
+		rMedianIdx = lMedianIdx + 1
+	} else {
+		medianIdx = ((windowSize + 1) / 2) - 1
+	}
+
+	var copyWindowMs : Double = 0.toDouble()
+	var findMedianMs : Double = 0.toDouble()
+
 	if (spend.size > windowSize) {
 		for (i in windowSize..(spend.size - 1)) {
 			if (debug)
 				println("-------------- i=${i} ------------------")
 
+			val t0 = System.currentTimeMillis()
 			val window: Array<Int> = spend.copyOfRange(i - windowSize, i)
-			val windowMedian = median(window)
+			val t1 = System.currentTimeMillis()
+			val windowMedian =
+					if (windowSizeEven)
+						medianEven(window, lMedianIdx, rMedianIdx)
+					else
+						medianOdd(window, medianIdx)
+			val t2 = System.currentTimeMillis()
 
 			if (spend[i] >= (2 * windowMedian)) {
 				numNotifications++
-					println("NOTIF at [${i}] $${spend[i]} >= (2 * " +
-							"$${windowMedian}) = ${numNotifications}")
+				println("NOTIF at [${i}] $${spend[i]} >= (2 * " +
+						"$${windowMedian}) = ${numNotifications}")
 
 			}
 
+			copyWindowMs += (t1 - t0)
+			findMedianMs += (t2 - t1)
+
 		}
+
+		println("copyWindowMs=${copyWindowMs}, findMedianMs=${findMedianMs}")
 	}
 
 	return numNotifications
 }
 
-/**
- * @param arr already sorted array, ascending
- */
-fun median(arr: Array<Int>): Double {
-	if (debug)
-		println("Into median: ${arr.toList()}")
 
-	arr.sort()
+fun medianEven(window: Array<Int>, leftIdx: Int, rightIdx: Int): Double {
+	window.sort()
+	return (window[leftIdx] + window[rightIdx]) / 2.toDouble()
+}
 
-	var result = 0.toDouble()
-	val arrSize = arr.size
-
-	if (arrSize % 2 == 1) {
-		// Odd number of elements - median = middle element
-		val medianIndex = ((arrSize + 1) / 2) - 1
-		result = arr[medianIndex].toDouble()
-
-		if (debug)
-			println("When array size is ${arrSize} idx of median = " +
-					"${medianIndex}," +
-					" median=${result}")
-	} else {
-		// Even number of elements - mediam = av. of two middle elements
-		val leftMiddleIndex = (arrSize / 2) - 1
-		val rightMiddleIndex = leftMiddleIndex + 1
-		result = (arr[leftMiddleIndex] + arr[rightMiddleIndex]) / 2.toDouble()
-
-		if (debug)
-			println("When array sie is ${arrSize} ,leftIdx=${leftMiddleIndex}, " +
-					"rightIdx=${rightMiddleIndex}")
-	}
-
-	return result
+fun medianOdd(window: Array<Int>, medianIdx: Int): Double {
+	window.sort()
+	return window[medianIdx].toDouble()
 }
 
 // sample0.txt = 2
