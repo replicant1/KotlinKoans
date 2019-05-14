@@ -6,64 +6,91 @@ import java.util.*
 
 const val debug = false
 
-/**
- * @param spend daily expenditures in increasing time order
- * @param windowSize number of lookback days used to calculate median
- */
 fun activityNotifications(spend: Array<Int>, windowSize: Int): Int {
 	var numNotifications: Int = 0
+	var sortedWindow: Array<Int>
 
 	if (debug) {
 		println("spend=${spend.toList()}")
 		println("spend.size=${spend.size}, windowSize=${windowSize}")
 	}
 
-	var windowSizeEven = if (windowSize % 2 == 0) true else false
-	var medianIdx = -1
-	var lMedianIdx = -1
-	var rMedianIdx = -1
-
-	if (windowSizeEven) {
-		lMedianIdx = (windowSize / 2) - 1
-		rMedianIdx = lMedianIdx + 1
-	} else {
-		medianIdx = ((windowSize + 1) / 2) - 1
-	}
-
-	var copyWindowMs : Double = 0.toDouble()
-	var findMedianMs : Double = 0.toDouble()
-
 	if (spend.size > windowSize) {
+		var windowSizeEven = if (windowSize % 2 == 0) true else false
+		var medianIdx = -1
+		var lMedianIdx = -1
+		var rMedianIdx = -1
+
+		if (windowSizeEven) {
+			lMedianIdx = (windowSize / 2) - 1
+			rMedianIdx = lMedianIdx + 1
+		} else {
+			medianIdx = ((windowSize + 1) / 2) - 1
+		}
+
+		sortedWindow = spend.copyOfRange(0, windowSize)
+
+		if (debug)
+			println("Before sorting, sortedWindow=${sortedWindow.toList()}")
+
+		sortedWindow.sort()
+
+		if (debug)
+			println("After sorting, sortedWindow=${sortedWindow.toList()}")
+
 		for (i in windowSize..(spend.size - 1)) {
 			if (debug)
 				println("-------------- i=${i} ------------------")
 
-			val t0 = System.currentTimeMillis()
-			val window: Array<Int> = spend.copyOfRange(i - windowSize, i)
-			val t1 = System.currentTimeMillis()
+			if (i != windowSize) {
+				updateWindow(spend, i, sortedWindow)
+			}
+
 			val windowMedian =
 					if (windowSizeEven)
-						medianEven(window, lMedianIdx, rMedianIdx)
+						medianEven(sortedWindow, lMedianIdx, rMedianIdx)
 					else
-						medianOdd(window, medianIdx)
-			val t2 = System.currentTimeMillis()
+						medianOdd(sortedWindow, medianIdx)
 
 			if (spend[i] >= (2 * windowMedian)) {
 				numNotifications++
-				println("NOTIF at [${i}] $${spend[i]} >= (2 * " +
-						"$${windowMedian}) = ${numNotifications}")
+				if (debug)
+					println("NOTIF at [${i}] $${spend[i]} >= (2 * " +
+							"$${windowMedian}) = ${numNotifications}")
 
 			}
-
-			copyWindowMs += (t1 - t0)
-			findMedianMs += (t2 - t1)
-
 		}
-
-		println("copyWindowMs=${copyWindowMs}, findMedianMs=${findMedianMs}")
 	}
 
 	return numNotifications
+}
+
+// 'i'is in a new position. Now update 'sortedWindow'
+fun updateWindow(spend: Array<Int>, i: Int, sortedWindow: Array<Int>) {
+	if (debug)
+		println("Into updateWindow: i=${i}, sortedWindow=${sortedWindow.toList()}")
+
+	val valueToRemove: Int = spend[i - sortedWindow.size - 1]
+	val valueToAdd: Int = spend[i-1]
+
+	if (debug) {
+		println("valueToRemove=spend[${i -sortedWindow.size - 1}] " +
+				"=${valueToRemove}")
+		println("valueToAdd=${valueToAdd}")
+	}
+
+	val indexOfRemove = sortedWindow.indexOf(valueToRemove)
+	sortedWindow[indexOfRemove] = valueToAdd
+
+	if (debug)
+		println("After replacement, before sorting, sortedWindow=${sortedWindow
+				.toList()}")
+
+	sortedWindow.sort()
+
+	if (debug)
+		println("After replacement, after sorting, " +
+				"sortredWindow=${sortedWindow.toList()}")
 }
 
 
@@ -84,12 +111,12 @@ fun medianOdd(window: Array<Int>, medianIdx: Int): Double {
 // input03.txt = 1026
 // input04.txt = 492
 // input05.txt = 926
-// input07.txt = 1
+// input07.txt = 1 <---
 class Notifications {
 	@Test
 	fun main() {
 		val scan = Scanner(File("/Users/rodbailey/AndroidStudioProjects/KotlinKoans/app/src/test/java/com" +
-				"/bailey/rod/hackerrank/sorting/notifications/input01.txt"))
+				"/bailey/rod/hackerrank/sorting/notifications/input05.txt"))
 		val nd = scan.nextLine().split(" ")
 		val n = nd[0].trim().toInt()
 		val d = nd[1].trim().toInt()
