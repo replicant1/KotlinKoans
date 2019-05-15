@@ -8,7 +8,7 @@ const val debug = false
 
 fun activityNotifications(spend: Array<Int>, windowSize: Int): Int {
 	var numNotifications: Int = 0
-	var sortedWindow: Array<Int>
+	var windowFreqMap = TreeMap<Int, Int>()
 
 	if (debug) {
 		println("spend=${spend.toList()}")
@@ -28,29 +28,31 @@ fun activityNotifications(spend: Array<Int>, windowSize: Int): Int {
 			medianIdx = ((windowSize + 1) / 2) - 1
 		}
 
-		sortedWindow = spend.copyOfRange(0, windowSize)
+		if (debug)
+			println("medianIdx=${medianIdx},lMedianIdx=${lMedianIdx}," +
+					"rMedianIdx=${rMedianIdx}")
+
+		// Populate spendToCount from window
+		for (i in 0..(windowSize - 1)) {
+			incFreq(windowFreqMap, spend[i])
+		}
 
 		if (debug)
-			println("Before sorting, sortedWindow=${sortedWindow.toList()}")
-
-		sortedWindow.sort()
-
-		if (debug)
-			println("After sorting, sortedWindow=${sortedWindow.toList()}")
+			println("At start, windowFreqMap=${windowFreqMap}")
 
 		for (i in windowSize..(spend.size - 1)) {
 			if (debug)
 				println("-------------- i=${i} ------------------")
 
 			if (i != windowSize) {
-				updateWindow(spend, i, sortedWindow)
+				advanceWindow(spend, i, windowSize, windowFreqMap)
 			}
 
 			val windowMedian =
 					if (windowSizeEven)
-						medianEven(sortedWindow, lMedianIdx, rMedianIdx)
+						calcMedianForEvenSizeWindow(windowFreqMap, lMedianIdx, rMedianIdx)
 					else
-						medianOdd(sortedWindow, medianIdx)
+						calcMedianForOddSizeWindow(windowFreqMap, medianIdx)
 
 			if (spend[i] >= (2 * windowMedian)) {
 				numNotifications++
@@ -65,53 +67,60 @@ fun activityNotifications(spend: Array<Int>, windowSize: Int): Int {
 	return numNotifications
 }
 
-// 'i'is in a new position. Now update 'sortedWindow'
-fun updateWindow(spend: Array<Int>, i: Int, sortedWindow: Array<Int>) {
-	if (debug)
-		println("Into updateWindow: i=${i}, sortedWindow=${sortedWindow.toList()}")
+fun incFreq(map: MutableMap<Int, Int>, toAdd: Int) {
+	val oldValue = map.getOrDefault(toAdd, 0);
+	map.put(toAdd, oldValue + 1)
+}
 
-	val valueToRemove: Int = spend[i - sortedWindow.size - 1]
-	val valueToAdd: Int = spend[i-1]
+fun decFreq(map: MutableMap<Int, Int>, toRemove: Int) {
+	val oldValue = map.getOrDefault(toRemove, 0)
+	val newValue = oldValue - 1
+	if (newValue == 0) {
+		map.remove(toRemove)
+	} else {
+		map.put(toRemove, newValue)
+	}
+}
+
+// 'toPos'is in a new position. Now update 'spendToCount'
+fun advanceWindow(spend: Array<Int>, toPos: Int, windowSize: Int,
+				  spendToCount: MutableMap<Int, Int>) {
+	val valueToRemove: Int = spend[toPos - windowSize - 1]
+	val valueToAdd: Int = spend[toPos - 1]
 
 	if (debug) {
-		println("valueToRemove=spend[${i -sortedWindow.size - 1}] " +
-				"=${valueToRemove}")
+		println("valueToRemove=${valueToRemove}")
 		println("valueToAdd=${valueToAdd}")
 	}
 
-	val indexOfRemove = sortedWindow.indexOf(valueToRemove)
-	sortedWindow[indexOfRemove] = valueToAdd
-
-	if (debug)
-		println("After replacement, before sorting, sortedWindow=${sortedWindow
-				.toList()}")
-
-	sortedWindow.sort()
-
-	if (debug)
-		println("After replacement, after sorting, " +
-				"sortredWindow=${sortedWindow.toList()}")
+	decFreq(spendToCount, valueToRemove)
+	incFreq(spendToCount, valueToAdd)
 }
 
-
-fun medianEven(window: Array<Int>, leftIdx: Int, rightIdx: Int): Double {
-	window.sort()
-	return (window[leftIdx] + window[rightIdx]) / 2.toDouble()
+fun calcMedianForEvenSizeWindow(windowFreqMap: MutableMap<Int, Int>,
+								leftIdx: Int, rightIdx: Int): Double {
+//	var index = 0
+//	for (entry in windowFreqMap.entries) {
+//		entry.
+//	}
+//
+//	window.sort()
+//	return (window[leftIdx] + window[rightIdx]) / 2.toDouble()
+	return 0.toDouble()
 }
 
-fun medianOdd(window: Array<Int>, medianIdx: Int): Double {
-	window.sort()
-	return window[medianIdx].toDouble()
+fun calcMedianForOddSizeWindow(windowFreqMap: MutableMap<Int, Int>,
+							   medianIdx: Int): Double {
+	var index = 0
+	for (entry in windowFreqMap.entries) {
+		index += entry.value
+		if (index > medianIdx) {
+			return entry.key.toDouble()
+		}
+	}
+	return 0.toDouble()
 }
 
-// sample0.txt = 2
-// sample1.txt = 0
-// input01.txt = 633
-// input02.txt = 770
-// input03.txt = 1026
-// input04.txt = 492
-// input05.txt = 926
-// input07.txt = 1 <---
 class Notifications {
 	@Test
 	fun main() {
