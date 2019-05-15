@@ -99,14 +99,36 @@ fun advanceWindow(spend: Array<Int>, toPos: Int, windowSize: Int,
 
 fun calcMedianForEvenSizeWindow(windowFreqMap: MutableMap<Int, Int>,
 								leftIdx: Int, rightIdx: Int): Double {
-//	var index = 0
-//	for (entry in windowFreqMap.entries) {
-//		entry.
-//	}
-//
-//	window.sort()
-//	return (window[leftIdx] + window[rightIdx]) / 2.toDouble()
-	return 0.toDouble()
+
+	if (debug)
+		println ("windowFreqMap=${windowFreqMap}, leftIdx=${leftIdx}, " +
+				"rightIdx=${rightIdx}")
+
+	var index = 0
+	var leftValue:Int = 0
+	var rightValue:Int = 0
+
+	for (entry in windowFreqMap.entries) {
+		index += entry.value
+		if (index > leftIdx) {
+			leftValue = entry.key
+			break
+		}
+	}
+
+	index = 0
+	for (entry in windowFreqMap.entries) {
+		index += entry.value
+		if (index > rightIdx) {
+			rightValue = entry.key
+			break
+		}
+	}
+
+	if (debug)
+		println("leftValue=${leftValue}, rightValue=${rightValue}")
+
+	return (leftValue + rightValue).toDouble() / 2.toDouble()
 }
 
 fun calcMedianForOddSizeWindow(windowFreqMap: MutableMap<Int, Int>,
@@ -125,7 +147,7 @@ class Notifications {
 	@Test
 	fun main() {
 		val scan = Scanner(File("/Users/rodbailey/AndroidStudioProjects/KotlinKoans/app/src/test/java/com" +
-				"/bailey/rod/hackerrank/sorting/notifications/input05.txt"))
+				"/bailey/rod/hackerrank/sorting/notifications/input04.txt"))
 		val nd = scan.nextLine().split(" ")
 		val n = nd[0].trim().toInt()
 		val d = nd[1].trim().toInt()

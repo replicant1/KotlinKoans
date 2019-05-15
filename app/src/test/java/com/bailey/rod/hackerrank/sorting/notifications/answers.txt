@@ -1,8 +1,8 @@
-// sample0.txt = 2
-// sample1.txt = 0
-// input01.txt = 633
-// input02.txt = 770
-// input03.txt = 1026
-// input04.txt = 492
-// input05.txt = 926
-// input07.txt = 1 <---
+// sample0.txt = 2 (odd)
+// sample1.txt = 0 (even)
+// input01.txt = 633 (even)
+// input02.txt = 770 (odd)
+// input03.txt = 1026 (even)
+// input04.txt = 492 (even)
+// input05.txt = 926 (odd)
+// input07.txt = 1 <--- (odd)
