@@ -1,4 +1,4 @@
-package com.bailey.rod.hackerrank.strings
+package com.bailey.rod.hackerrank.strings.anagrams
 
 import org.junit.Test
 import java.io.File
