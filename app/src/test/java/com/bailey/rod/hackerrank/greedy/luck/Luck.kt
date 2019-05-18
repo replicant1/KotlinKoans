@@ -4,7 +4,7 @@ import org.junit.Test
 import java.io.File
 import java.util.*
 
-const val debug = true
+const val debug = false
 
 /**
  * @param k Number of 'important' contests you loose
