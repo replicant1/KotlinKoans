@@ -6,7 +6,7 @@ import java.util.*
 import kotlin.collections.ArrayList
 import kotlin.collections.HashMap
 
-const val debug = true
+const val debug = false
 
 fun whatFlavors(costs: Array<Int>, money: Int): Unit {
 	val costToIndexes = HashMap<Int, MutableList<Int>>()
@@ -91,12 +91,16 @@ class IceCream {
 	@Test
 	fun main() {
 		val scan = Scanner(File("/Users/rodbailey/AndroidStudioProjects/KotlinKoans/app/src/test/java/com" +
-				"/bailey/rod/hackerrank/search/icecream/sample0.txt"))
+				"/bailey/rod/hackerrank/search/icecream/input11.txt"))
 		val t = scan.nextLine().trim().toInt()
 		for (tItr in 1..t) {
 			val money = scan.nextLine().trim().toInt()
 			val n = scan.nextLine().trim().toInt()
-			val cost = scan.nextLine().split(" ").map { it.trim().toInt() }.toTypedArray()
+			// NOTE: Added trim() to nextLine() as HackerRank input files
+			// have an extra space at the end.
+			val cost = scan.nextLine().trim().split(" ").map { it.trim()
+					.toInt() }
+					.toTypedArray()
 			whatFlavors(cost, money)
 		}
 	}
