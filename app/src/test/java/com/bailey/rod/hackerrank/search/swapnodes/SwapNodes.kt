@@ -10,41 +10,89 @@ data class Node(var left: Node?, var right: Node?, var value: Int)
 
 fun swapNodes(nodes: Array<Array<Int>>, queries: Array<Int>): Array<Array<Int>> {
 	if (debug) {
+		println("nodes.size=${nodes.size}")
 		for (idx in nodes) {
 			println("nodes=${idx.toList()}")
 		}
 		println("queries=${queries.toList()}")
 	}
 
-	val output: MutableList<Int> = LinkedList<Int>()
-	inorder(nodes, 1, output)
-	println("output=${output}")
+	for (k in queries) {
+		// Swap subtrees of all nodes at depth k, 2k, 3k ...
+		println("----k = ${k}. Setting kFactor to ${k}")
+		var kMultiplier = 1
 
-	swapSubtree(nodes, 2)
-	swapSubtree(nodes, 8)
+		while ((kMultiplier * k) <= nodes.size) {
+			val subtreeRootNums = nodesAtDepth(nodes, kMultiplier * k)
 
-	output.clear()
-	inorder(nodes, 1, output)
-	println("output=${output}")
+			if (debug)
+				println("subtreeRoots at ${kMultiplier * k} = ${subtreeRootNums
+						.toList()}")
+
+			for (subtreeRootNum in subtreeRootNums) {
+				if (subtreeRootNum != -1)
+					swapSubtree(nodes, subtreeRootNum)
+			}
+
+			kMultiplier += 1
+		}
+		val output = LinkedList<Int>()
+		inorder(nodes, 1, output)
+		println(output.toList())
+	}
+
+//	val output: MutableList<Int> = LinkedList<Int>()
+//	inorder(nodes, 1, output)
+//	println("output=${output}")
+
+//	val d2 = nodesAtDepth(nodes, 1)
+//	println("Nodes at depth =${d2.toList()}")
+
+//	ee(nodes, 3)
+//	swapSubtree(nodes, 8)
+
+//	output.clear()
+//	inorder(nodes, 1, output)
+//	println("output=${output}")
 
 	return emptyArray()
 }
 
-fun swapSubtree(nodes:Array<Array<Int>>, subtreeRootNodeNum:Int) {
-	val oldLeft = nodes[subtreeRootNodeNum][0]
-	val oldRight = nodes[subtreeRootNodeNum][1]
-	nodes[subtreeRootNodeNum][0] = oldRight
-	nodes[subtreeRootNodeNum][1] = oldLeft
+fun swapSubtree(nodes: Array<Array<Int>>, subtreeRootNodeNum: Int) {
+	val subtreeRootNodeIdx = subtreeRootNodeNum - 1
+	val oldLeft = nodes[subtreeRootNodeIdx][0]
+	val oldRight = nodes[subtreeRootNodeIdx][1]
+	nodes[subtreeRootNodeIdx][0] = oldRight
+	nodes[subtreeRootNodeIdx][1] = oldLeft
 }
 
-fun nodesAtDepth(nodes: Array<Array<Int>>, depthNum: Int) : Array<Int> {
-	return nodes[depthNum - 1]
+fun nodesAtDepth(nodes: Array<Array<Int>>, depthNum: Int): Array<Int> {
+	val result: MutableList<Int> = LinkedList<Int>()
+	depthFind(nodes, depthNum, 1, 1, result)
+	return result.toTypedArray()
+}
+
+fun depthFind(nodes: Array<Array<Int>>,
+			  targetDepth: Int,
+			  nodeNum: Int,
+			  thisDepth: Int,
+			  foundNodeNums: MutableList<Int>) {
+	if (nodeNum != -1) {
+
+		if (thisDepth == targetDepth) {
+			foundNodeNums.add(nodeNum)
+		} else {
+			depthFind(nodes, targetDepth, nodes[nodeNum - 1][0], thisDepth +
+					1, foundNodeNums)
+			depthFind(nodes, targetDepth, nodes[nodeNum - 1][1], thisDepth +
+					1, foundNodeNums)
+		}
+	}
 }
 
 fun inorder(nodes: Array<Array<Int>>, nodeNum: Int, output: MutableList<Int>) {
 	if (nodeNum != -1) {
 		inorder(nodes, nodes[nodeNum - 1][0], output)
-//		println("${nodeNum}")
 		output.add(nodeNum)
 		inorder(nodes, nodes[nodeNum - 1][1], output)
 	}
