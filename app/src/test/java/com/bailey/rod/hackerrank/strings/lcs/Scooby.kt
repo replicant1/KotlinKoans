@@ -6,11 +6,17 @@ import java.util.*
 
 const val debug = true
 
-data class Tile(val ch: Char, val idx: Int)
+data class Tile(val ch: Char, val idx: Int) {
+	override fun toString(): String {
+		return "${ch}@${idx}"
+	}
+}
 
 fun commonChild(s1: String, s2: String): Int {
 	if (debug)
 		println("Into commonChild: s1.len=${s1.length}, s2.len=${s2.length}")
+
+	// Create tile list
 
 	val s1Array = LinkedList<List<Tile>>()
 	val s2Array = LinkedList<List<Tile>>()
@@ -20,6 +26,8 @@ fun commonChild(s1: String, s2: String): Int {
 
 	for ((index, ch) in s2.withIndex())
 		s2Array.add(listOf(Tile(ch, index)))
+
+	// Intersection
 
 	val strList1 = tileListToStringList(s1Array)
 	val strList2 = tileListToStringList(s2Array)
@@ -44,7 +52,35 @@ fun commonChild(s1: String, s2: String): Int {
 	if (debug)
 		println("intersect_2: ${intersect_2}")
 
+	// Generate next tile list from intersect_1
+	val twochars_1 = generateNext(intersect_1)
+
+	if (debug)
+		println("twochars_1: ${twochars_1}")
+
+	val twochars_2 = generateNext(intersect_2)
+
+	if (debug)
+		println("twochars_2: ${twochars_2}")
+
 	return 0
+}
+
+// All pairwise combinations
+fun generateNext(prev:LinkedList<List<Tile>>): List<List<Tile>> {
+	val result = LinkedList<List<Tile>>()
+	for (i in 0..prev.size-1) {
+
+		val tile_i = prev[i][0]
+		for (j in i+1..prev.size - 1) {
+			val tile_j = prev[j][0]
+			val ilist = LinkedList<Tile>()
+			ilist.add(tile_i)
+			ilist.add(tile_j)
+			result.add(ilist)
+		}
+	}
+	return result
 }
 
 fun tileListToStringList(tiles: List<List<Tile>>): ArrayList<String> {
