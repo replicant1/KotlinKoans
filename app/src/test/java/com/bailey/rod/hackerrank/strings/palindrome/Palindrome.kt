@@ -4,7 +4,7 @@ import org.junit.Test
 import java.io.File
 import java.util.*
 
-const val debug = true
+const val debug = false
 
 /**
  * @param n Length of string [s]
@@ -15,6 +15,43 @@ fun substrCount(n: Int, s: String): Long {
 		println("Into substrCount with n=${n}, s=\"${s}\"")
 
 	var result = findMiddleCharDiffPalindromes(n, s)
+	result += findAllCharsSamePalindromes(n, s)
+
+	return result
+}
+
+/**
+ * Search for substrings where all chars are same e.g. "a", "aa", "aaa"
+ */
+fun findAllCharsSamePalindromes(n: Int, s: String): Long {
+	var result = 0.toLong()
+
+	for (i in 0..(n - 1)) {
+		if (debug)
+			println("==== i=${i} ====")
+
+		var offset = 0
+		var startCh = s[i]
+		var palinCount = 0
+		var endOfPalin = false
+
+		while (!endOfPalin && ((i + offset) <= (n - 1))) {
+			if (debug)
+				println("endOfPalin=${endOfPalin} i=${i} offset=${offset}")
+
+			if (s[i + offset] == startCh) {
+				palinCount++
+				if (debug)
+					println("P:${s.substring(i, i + offset + 1)}")
+			} else {
+				endOfPalin = true
+			}
+
+			offset++
+		}
+
+		result += palinCount
+	}
 
 	return result
 }
@@ -63,6 +100,7 @@ fun findMiddleCharDiffPalindromes(n: Int, s: String): Long {
 
 		result += palinCount
 	} // for i
+
 	return result
 }
 
@@ -70,7 +108,7 @@ class Palindrome {
 	@Test
 	fun main() {
 		val scan = Scanner(File("/Users/rodbailey/AndroidStudioProjects/KotlinKoans/app/src/test/java/com" +
-				"/bailey/rod/hackerrank/strings/palindrome/input/input00.txt"))
+				"/bailey/rod/hackerrank/strings/palindrome/input/input16.txt"))
 		val n = scan.nextLine().trim().toInt()
 		val s = scan.nextLine()
 		val result = substrCount(n, s)
