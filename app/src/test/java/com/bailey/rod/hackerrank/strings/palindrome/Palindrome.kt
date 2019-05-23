@@ -14,49 +14,55 @@ fun substrCount(n: Int, s: String): Long {
 	if (debug)
 		println("Into substrCount with n=${n}, s=\"${s}\"")
 
+	var result = findMiddleCharDiffPalindromes(n, s)
+
+	return result
+}
+
+/**
+ * Search for substrings of odd length with a different char in the middle
+ * eg. "aabaa", "aca", "x", "aaxaa"
+ */
+fun findMiddleCharDiffPalindromes(n: Int, s: String): Long {
 	var result = 0.toLong()
 
-	// Search for substrings of odd length with a different char in the middle
-	// eg. "aabaa", "aca", "x", "aaxaa"
 	for (i in 0..(n - 1)) {
 		if (debug)
 			println("----- i=${i} -----")
 
 		var offset = 1
-		val centre_ch = s[i]
-		var palins_i = 0
-		var non_centre_ch = ' '
+		val centreCh = s[i]
+		var palinCount = 0
+		var nonCentreCh = ' '
 
 		while (((i - offset) >= 0) && ((i + offset) <= (n - 1))) {
-			val left_ch = s[i - offset]
-			val right_ch = s[i + offset]
+			val leftCh = s[i - offset]
+			val rightCh = s[i + offset]
 
 			if (debug)
-				println("i=${i} w=${offset} left_ch=${left_ch} " +
-						"right_ch=${right_ch}")
+				println("i=${i} w=${offset} left_ch=${leftCh} " +
+						"right_ch=${rightCh}")
 
-			if ((left_ch == right_ch) && (left_ch != centre_ch)) {
+			if ((leftCh == rightCh) && (leftCh != centreCh)) {
 				if (offset == 1) {
-					non_centre_ch = left_ch
-				}
-				else if (left_ch != non_centre_ch) {
+					nonCentreCh = leftCh
+				} else if (leftCh != nonCentreCh) {
 					break
 				}
 
 				if (debug)
 					println("P:${s.substring(i - offset, i + offset + 1)}")
 
-				palins_i++
+				palinCount++
 			}
 			offset++
 		}  // while
 
 		if (debug)
-			println("Found ${palins_i} palindromes about i=${i}")
+			println("Found ${palinCount} palindromes about i=${i}")
 
-		result += palins_i
+		result += palinCount
 	} // for i
-
 	return result
 }
 
