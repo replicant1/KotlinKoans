@@ -4,7 +4,7 @@ import org.junit.Test
 import java.io.File
 import java.util.*
 
-const val debug = true
+const val debug = false
 
 /**
  * @param n Length of string [s]
@@ -15,7 +15,7 @@ fun substrCount(n: Int, s: String): Long {
 		println("Into substrCount with n=${n}, s=\"${s}\"")
 
 	var result = findMiddleCharDiffPalindromes(n, s)
-	//result += findAllCharsSamePalindromes(n, s)
+	result += findAllCharsSamePalindromes(n, s)
 
 	return result
 }
@@ -107,7 +107,7 @@ class Palindrome {
 	@Test
 	fun main() {
 		val scan = Scanner(File("/Users/rodbailey/AndroidStudioProjects/KotlinKoans/app/src/test/java/com" +
-				"/bailey/rod/hackerrank/strings/palindrome/input/input02.txt"))
+				"/bailey/rod/hackerrank/strings/palindrome/input/input06.txt"))
 		val n = scan.nextLine().trim().toInt()
 		val s = scan.nextLine()
 		val result = substrCount(n, s)
