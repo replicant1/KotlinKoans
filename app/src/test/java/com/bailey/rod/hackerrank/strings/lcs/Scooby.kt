@@ -16,21 +16,21 @@ class TileList() {
 	val tiles = ArrayList<Tile>()
 	private val builder = StringBuilder()
 
-	constructor(str: String): this() {
+	constructor(str: String) : this() {
 		for ((i, ch) in str.withIndex()) {
 			tiles.add(Tile(ch, i))
 			builder.append(ch)
 		}
 	}
 
-	constructor(list: List<Tile>): this() {
+	constructor(list: List<Tile>) : this() {
 		tiles.addAll(list)
 		for (tile in list) {
 			builder.append(tile.ch)
 		}
 	}
 
-	constructor(tile: Tile): this() {
+	constructor(tile: Tile) : this() {
 		tiles.add(tile)
 		builder.append(tile.ch)
 	}
@@ -38,6 +38,11 @@ class TileList() {
 	fun add(t: Tile) {
 		tiles.add(t)
 		builder.append(t.ch)
+	}
+
+	fun add(other: TileList) {
+		tiles.addAll(other.tiles)
+		builder.append(other.builder.toString())
 	}
 
 	fun contains(ch: Char): Boolean {
@@ -53,7 +58,7 @@ class TileList() {
 		return builder.toString().equals(str)
 	}
 
-	fun getCharString() : String {
+	fun getCharString(): String {
 		return builder.toString()
 	}
 
@@ -66,7 +71,7 @@ class TileListArray() {
 
 	val tileLists = ArrayList<TileList>()
 
-	constructor(str:String): this(){
+	constructor(str: String) : this() {
 		for ((i, ch) in str.withIndex()) {
 			tileLists.add(TileList(Tile(ch, i)))
 		}
@@ -76,9 +81,13 @@ class TileListArray() {
 		tileLists.add(t)
 	}
 
+	fun add(other: TileListArray) {
+		tileLists.addAll(other.tileLists)
+	}
+
 	fun contains(str: String): Boolean {
 		for (tileList in tileLists) {
-			if (tileList.equals(str))  {
+			if (tileList.equals(str)) {
 				return true
 			}
 		}
@@ -106,43 +115,87 @@ fun commonChild(s1: String, s2: String): Int {
 
 	// Create two arrays of tile lists. Each tile list contains a single tile,
 	// corresponding to a single char in the string
-	val s1TLA = TileListArray(s1)
-	val s2TLA = TileListArray(s2)
+	val onecharTLA1 = TileListArray(s1)
+	val onecharTLA2 = TileListArray(s2)
 
-	// Find tile lists in s1 whose string equiv is also in s2
-	val s1ins2TLA = s1TLA.findOneWayIntersection(s2TLA)
-	val s2ins1TLA = s2TLA.findOneWayIntersection(s1TLA)
-
-	if (debug) {
-		println("s1ins2TLA: ${s1ins2TLA}")
-		println("s2ins1TLA: ${s2ins1TLA}")
-	}
-
-	// Generate next tile list from intersect_1
-	val twochars1 = generateNext(s1ins2TLA)
-	val twochars2 = generateNext(s2ins1TLA)
+	// Find tile lists in TLA1 whose string equiv is in TLA2
+	val onecharTLA1Inter = onecharTLA1.findOneWayIntersection(onecharTLA2)
+	val onecharTLA2Inter = onecharTLA2.findOneWayIntersection(onecharTLA1)
 
 	if (debug) {
-		println("twochars1: ${twochars1}")
-		println("twochars_2: ${twochars2}")
+		println("onecharTLA1Inter: ${onecharTLA1Inter}")
+		println("onecharTLA2Inter: ${onecharTLA2Inter}")
 	}
+
+	// Generate TLAs for two character generation
+	val twocharTLA1 = crossProduct(onecharTLA1Inter, onecharTLA1Inter)
+	val twocharTLA2 = crossProduct(onecharTLA2Inter, onecharTLA2Inter)
+
+	if (debug) {
+		println("twocharsTLA1: ${twocharTLA1}")
+		println("twocharsTLA2: ${twocharTLA2}")
+	}
+
+	// Fine tile lists in TLA1 whose string equiv is in TLA2
+	val twocharTLA1Inter = twocharTLA1.findOneWayIntersection(twocharTLA2)
+	val twocharTLA2Inter = twocharTLA2.findOneWayIntersection(twocharTLA1)
+
+	if (debug) {
+		println("twocharTLA1Inter: ${twocharTLA1Inter}")
+		println("twocharTLA2Inter: ${twocharTLA2Inter}")
+	}
+
 
 	return 0
 }
 
 // All pairwise combinations
-fun generateNext(prev:TileListArray): TileListArray {
+fun crossProduct(prefixTLA: TileListArray, suffixTLA: TileListArray): TileListArray {
+	if (debug)
+		println("crossProduct: ${prefixTLA} and ${suffixTLA}")
+
 	val result = TileListArray()
-	for (i in 0..prev.tileLists.size-1) {
-		val tile_i = prev.tileLists[i].tiles[0]
-		for (j in i+1..prev.tileLists.size - 1) {
-			val tile_j = prev.tileLists[j].tiles[0]
-			val ilist = TileList()
-			ilist.add(tile_i)
-			ilist.add(tile_j)
-			result.add(ilist)
+
+	for (p in 0..prefixTLA.tileLists.size - 1) {
+		val prefix = prefixTLA.tileLists[p]
+		val lastTileInPrefix = prefix.tiles.last()
+		val suffixStartIdx = indexOf(lastTileInPrefix, suffixTLA) + 1
+
+		if (suffixStartIdx <= (suffixTLA.tileLists.size - 1)) {
+			for (s in suffixStartIdx..suffixTLA.tileLists.size - 1) {
+				val suffix = suffixTLA.tileLists[s]
+				result.add(concat(prefix, suffix))
+			}
+		}
+
+//		val tile_i = prefixTLA.tileLists[i].tiles.indexOf(lastTileInPrefix)
+
+//		for (j in i + 1..prefixTLA.tileLists.size - 1) {
+//			val tile_j = prefixTLA.tileLists[j].tiles[0]
+//			val ilist = TileList()
+//			ilist.add(tile_i)
+//			ilist.add(tile_j)
+//			result.add(ilist)
+//		}
+	}
+	return result
+}
+
+fun indexOf(tile: Tile, tileListArray: TileListArray): Int {
+	var result = -1
+	for ((index, tileList) in tileListArray.tileLists.withIndex()) {
+		if (tileList.tiles[0].equals(tile)) {
+			result = index
+			break
 		}
 	}
+	return result
+}
+
+fun concat(a:TileList, b: TileList): TileList {
+	val result = TileList()
+	result.add(a)
+	result.add(b)
 	return result
 }
 
