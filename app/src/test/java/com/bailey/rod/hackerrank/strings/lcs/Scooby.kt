@@ -18,8 +18,8 @@ fun commonChild(s1: String, s2: String): Int {
 
 	// Create tile list
 
-	val s1Array = LinkedList<List<Tile>>()
-	val s2Array = LinkedList<List<Tile>>()
+	val s1Array = ArrayList<List<Tile>>()
+	val s2Array = ArrayList<List<Tile>>()
 
 	for ((index, ch) in s1.withIndex())
 		s1Array.add(listOf(Tile(ch, index)))
@@ -70,7 +70,6 @@ fun commonChild(s1: String, s2: String): Int {
 fun generateNext(prev:LinkedList<List<Tile>>): List<List<Tile>> {
 	val result = LinkedList<List<Tile>>()
 	for (i in 0..prev.size-1) {
-
 		val tile_i = prev[i][0]
 		for (j in i+1..prev.size - 1) {
 			val tile_j = prev[j][0]
@@ -83,9 +82,8 @@ fun generateNext(prev:LinkedList<List<Tile>>): List<List<Tile>> {
 	return result
 }
 
-fun tileListToStringList(tiles: List<List<Tile>>): ArrayList<String> {
+fun tileListToStringList(tiles: List<List<Tile>>): List<String> {
 	val result = ArrayList<String>()
-
 	for (tileList in tiles) {
 		val builder = StringBuilder()
 		for (tile in tileList) {
