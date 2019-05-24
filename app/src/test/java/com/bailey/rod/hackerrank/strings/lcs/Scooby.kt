@@ -14,17 +14,40 @@ data class Tile(val ch: Char, val idx: Int) {
 
 class TileList() {
 	val tiles = ArrayList<Tile>()
+	private val builder = StringBuilder()
 
 	constructor(list: List<Tile>): this() {
 		tiles.addAll(list)
+		for (tile in list) {
+			builder.append(tile.ch)
+		}
 	}
 
 	constructor(tile: Tile): this() {
 		tiles.add(tile)
+		builder.append(tile.ch)
 	}
 
 	fun add(t: Tile) {
 		tiles.add(t)
+		builder.append(t.ch)
+	}
+
+	fun contains(ch: Char): Boolean {
+		for (tile in tiles) {
+			if (tile.ch == ch) {
+				return true
+			}
+		}
+		return false
+	}
+
+	fun equals(str: String): Boolean {
+		return builder.toString().equals(str)
+	}
+
+	fun getCharString() : String {
+		return builder.toString()
 	}
 
 	override fun toString(): String {
@@ -38,6 +61,15 @@ class TileListArray {
 
 	fun add(t: TileList) {
 		tileLists.add(t)
+	}
+
+	fun contains(str: String): Boolean {
+		for (tileList in tileLists) {
+			if (tileList.equals(str))  {
+				return true
+			}
+		}
+		return false
 	}
 
 	override fun toString(): String {
@@ -61,14 +93,10 @@ fun commonChild(s1: String, s2: String): Int {
 		s2Array.add(TileList(Tile(ch, index)))
 
 	// Intersection
-
-	val strList1 = tileListToStringList(s1Array)
-	val strList2 = tileListToStringList(s2Array)
-
 	val intersect_1 = TileListArray()
-	for ((idx1, str1) in strList1.withIndex()) {
-		if (strList2.contains(str1)) {
-			intersect_1.add(s1Array.tileLists[idx1])
+	for (tileList in s1Array.tileLists) {
+		if (s2Array.contains(tileList.getCharString())) {
+			intersect_1.add(tileList)
 		}
 	}
 
@@ -76,9 +104,9 @@ fun commonChild(s1: String, s2: String): Int {
 		println("intersect_1: ${intersect_1}")
 
 	val intersect_2 = TileListArray()
-	for ((idx2, str2) in strList2.withIndex()) {
-		if (strList1.contains(str2)) {
-			intersect_2.add(s2Array.tileLists[idx2])
+	for (tileList in s2Array.tileLists) {
+		if (s1Array.contains(tileList.getCharString())) {
+			intersect_2.add(tileList)
 		}
 	}
 
@@ -114,19 +142,6 @@ fun generateNext(prev:TileListArray): TileListArray {
 	}
 	return result
 }
-
-fun tileListToStringList(arr: TileListArray): List<String> {
-	val result = ArrayList<String>()
-	for (tileList in arr.tileLists) {
-		val builder = StringBuilder()
-		for (tile in tileList.tiles) {
-			builder.append(tile.ch)
-		}
-		result.add(builder.toString())
-	}
-	return result
-}
-
 
 class Scooby {
 	@Test
