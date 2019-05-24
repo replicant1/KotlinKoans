@@ -16,6 +16,13 @@ class TileList() {
 	val tiles = ArrayList<Tile>()
 	private val builder = StringBuilder()
 
+	constructor(str: String): this() {
+		for ((i, ch) in str.withIndex()) {
+			tiles.add(Tile(ch, i))
+			builder.append(ch)
+		}
+	}
+
 	constructor(list: List<Tile>): this() {
 		tiles.addAll(list)
 		for (tile in list) {
@@ -55,9 +62,15 @@ class TileList() {
 	}
 }
 
-class TileListArray {
+class TileListArray() {
 
 	val tileLists = ArrayList<TileList>()
+
+	constructor(str:String): this(){
+		for ((i, ch) in str.withIndex()) {
+			tileLists.add(TileList(Tile(ch, i)))
+		}
+	}
 
 	fun add(t: TileList) {
 		tileLists.add(t)
@@ -72,6 +85,16 @@ class TileListArray {
 		return false
 	}
 
+	fun findOneWayIntersection(otherTLA: TileListArray): TileListArray {
+		val result = TileListArray()
+		for (tileList in tileLists) {
+			if (otherTLA.contains(tileList.getCharString())) {
+				result.add(tileList)
+			}
+		}
+		return result
+	}
+
 	override fun toString(): String {
 		return tileLists.toString()
 	}
@@ -81,48 +104,28 @@ fun commonChild(s1: String, s2: String): Int {
 	if (debug)
 		println("Into commonChild: s1.len=${s1.length}, s2.len=${s2.length}")
 
-	// Create tile list
+	// Create two arrays of tile lists. Each tile list contains a single tile,
+	// corresponding to a single char in the string
+	val s1TLA = TileListArray(s1)
+	val s2TLA = TileListArray(s2)
 
-	val s1Array = TileListArray()
-	val s2Array = TileListArray()
+	// Find tile lists in s1 whose string equiv is also in s2
+	val s1ins2TLA = s1TLA.findOneWayIntersection(s2TLA)
+	val s2ins1TLA = s2TLA.findOneWayIntersection(s1TLA)
 
-	for ((index, ch) in s1.withIndex())
-		s1Array.add(TileList(Tile(ch, index)))
-
-	for ((index, ch) in s2.withIndex())
-		s2Array.add(TileList(Tile(ch, index)))
-
-	// Intersection
-	val intersect_1 = TileListArray()
-	for (tileList in s1Array.tileLists) {
-		if (s2Array.contains(tileList.getCharString())) {
-			intersect_1.add(tileList)
-		}
+	if (debug) {
+		println("s1ins2TLA: ${s1ins2TLA}")
+		println("s2ins1TLA: ${s2ins1TLA}")
 	}
-
-	if (debug)
-		println("intersect_1: ${intersect_1}")
-
-	val intersect_2 = TileListArray()
-	for (tileList in s2Array.tileLists) {
-		if (s1Array.contains(tileList.getCharString())) {
-			intersect_2.add(tileList)
-		}
-	}
-
-	if (debug)
-		println("intersect_2: ${intersect_2}")
 
 	// Generate next tile list from intersect_1
-	val twochars_1 = generateNext(intersect_1)
+	val twochars1 = generateNext(s1ins2TLA)
+	val twochars2 = generateNext(s2ins1TLA)
 
-	if (debug)
-		println("twochars_1: ${twochars_1}")
-
-	val twochars_2 = generateNext(intersect_2)
-
-	if (debug)
-		println("twochars_2: ${twochars_2}")
+	if (debug) {
+		println("twochars1: ${twochars1}")
+		println("twochars_2: ${twochars2}")
+	}
 
 	return 0
 }
