@@ -12,40 +12,73 @@ data class Tile(val ch: Char, val idx: Int) {
 	}
 }
 
+class TileList() {
+	val tiles = ArrayList<Tile>()
+
+	constructor(list: List<Tile>): this() {
+		tiles.addAll(list)
+	}
+
+	constructor(tile: Tile): this() {
+		tiles.add(tile)
+	}
+
+	fun add(t: Tile) {
+		tiles.add(t)
+	}
+
+	override fun toString(): String {
+		return tiles.toString()
+	}
+}
+
+class TileListArray {
+
+	val tileLists = ArrayList<TileList>()
+
+	fun add(t: TileList) {
+		tileLists.add(t)
+	}
+
+	override fun toString(): String {
+		return tileLists.toString()
+	}
+}
+
 fun commonChild(s1: String, s2: String): Int {
 	if (debug)
 		println("Into commonChild: s1.len=${s1.length}, s2.len=${s2.length}")
 
 	// Create tile list
 
-	val s1Array = ArrayList<List<Tile>>()
-	val s2Array = ArrayList<List<Tile>>()
+	val s1Array = TileListArray()
+	val s2Array = TileListArray()
 
 	for ((index, ch) in s1.withIndex())
-		s1Array.add(listOf(Tile(ch, index)))
+		s1Array.add(TileList(Tile(ch, index)))
 
 	for ((index, ch) in s2.withIndex())
-		s2Array.add(listOf(Tile(ch, index)))
+		s2Array.add(TileList(Tile(ch, index)))
 
 	// Intersection
 
 	val strList1 = tileListToStringList(s1Array)
 	val strList2 = tileListToStringList(s2Array)
 
-	val intersect_1 = LinkedList<List<Tile>>()
+	val intersect_1 = TileListArray()
 	for ((idx1, str1) in strList1.withIndex()) {
 		if (strList2.contains(str1)) {
-			intersect_1.add(s1Array[idx1])
+			intersect_1.add(s1Array.tileLists[idx1])
 		}
 	}
 
 	if (debug)
 		println("intersect_1: ${intersect_1}")
 
-	val intersect_2 = LinkedList<List<Tile>>()
+	val intersect_2 = TileListArray()
 	for ((idx2, str2) in strList2.withIndex()) {
 		if (strList1.contains(str2)) {
-			intersect_2.add(s2Array[idx2])
+			intersect_2.add(s2Array.tileLists[idx2])
 		}
 	}
 
@@ -67,13 +100,13 @@ fun commonChild(s1: String, s2: String): Int {
 }
 
 // All pairwise combinations
-fun generateNext(prev:LinkedList<List<Tile>>): List<List<Tile>> {
-	val result = LinkedList<List<Tile>>()
-	for (i in 0..prev.size-1) {
-		val tile_i = prev[i][0]
-		for (j in i+1..prev.size - 1) {
-			val tile_j = prev[j][0]
-			val ilist = LinkedList<Tile>()
+fun generateNext(prev:TileListArray): TileListArray {
+	val result = TileListArray()
+	for (i in 0..prev.tileLists.size-1) {
+		val tile_i = prev.tileLists[i].tiles[0]
+		for (j in i+1..prev.tileLists.size - 1) {
+			val tile_j = prev.tileLists[j].tiles[0]
+			val ilist = TileList()
 			ilist.add(tile_i)
 			ilist.add(tile_j)
 			result.add(ilist)
@@ -82,11 +115,11 @@ fun generateNext(prev:LinkedList<List<Tile>>): List<List<Tile>> {
 	return result
 }
 
-fun tileListToStringList(tiles: List<List<Tile>>): List<String> {
+fun tileListToStringList(arr: TileListArray): List<String> {
 	val result = ArrayList<String>()
-	for (tileList in tiles) {
+	for (tileList in arr.tileLists) {
 		val builder = StringBuilder()
-		for (tile in tileList) {
+		for (tile in tileList.tiles) {
 			builder.append(tile.ch)
 		}
 		result.add(builder.toString())
