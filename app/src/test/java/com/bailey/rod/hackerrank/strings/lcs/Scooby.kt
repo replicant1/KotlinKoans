@@ -14,52 +14,24 @@ data class Tile(val ch: Char, val idx: Int) {
 
 class TileList() {
 	val tiles = ArrayList<Tile>()
-	private val builder = StringBuilder()
-
-	constructor(str: String) : this() {
-		for ((i, ch) in str.withIndex()) {
-			tiles.add(Tile(ch, i))
-			builder.append(ch)
-		}
-	}
-
-	constructor(list: List<Tile>) : this() {
-		tiles.addAll(list)
-		for (tile in list) {
-			builder.append(tile.ch)
-		}
-	}
+	private var charString: String = ""
 
 	constructor(tile: Tile) : this() {
 		tiles.add(tile)
-		builder.append(tile.ch)
-	}
-
-	fun add(t: Tile) {
-		tiles.add(t)
-		builder.append(t.ch)
+		charString += tile.ch
 	}
 
 	fun add(other: TileList) {
 		tiles.addAll(other.tiles)
-		builder.append(other.builder.toString())
-	}
-
-	fun contains(ch: Char): Boolean {
-		for (tile in tiles) {
-			if (tile.ch == ch) {
-				return true
-			}
-		}
-		return false
+		charString += other.charString
 	}
 
 	fun equals(str: String): Boolean {
-		return builder.toString().equals(str)
+		return charString.equals(str)
 	}
 
 	fun getCharString(): String {
-		return builder.toString()
+		return charString
 	}
 
 	override fun toString(): String {
@@ -70,28 +42,23 @@ class TileList() {
 class TileListArray() {
 
 	val tileLists = ArrayList<TileList>()
+	val tileListCharStrings = HashSet<String>()
 
 	constructor(str: String) : this() {
 		for ((i, ch) in str.withIndex()) {
-			tileLists.add(TileList(Tile(ch, i)))
+			val tl = TileList(Tile(ch, i))
+			tileLists.add(tl)
+			tileListCharStrings.add(tl.getCharString())
 		}
 	}
 
 	fun add(t: TileList) {
 		tileLists.add(t)
-	}
-
-	fun add(other: TileListArray) {
-		tileLists.addAll(other.tileLists)
+		tileListCharStrings.add(t.getCharString())
 	}
 
 	fun contains(str: String): Boolean {
-		for (tileList in tileLists) {
-			if (tileList.equals(str)) {
-				return true
-			}
-		}
-		return false
+		return tileListCharStrings.contains(str)
 	}
 
 	fun findOneWayIntersection(otherTLA: TileListArray): TileListArray {
@@ -137,8 +104,8 @@ fun commonChild(s1: String, s2: String): Int {
 		val n_charTLA2 = crossProduct(n_1charTLA2Inter, onecharTLA2Inter)
 
 		if (debug) {
-			println("n=${n}, TLA1=${n_charTLA1.tileLists.size}")
-			println("n=${n}, TLA2=${n_charTLA2.tileLists.size}")
+			println("n=${n}, TLA1=${n_charTLA1}")
+			println("n=${n}, TLA2=${n_charTLA2}")
 		}
 
 		// Find intersection of n-char substrings
@@ -146,8 +113,8 @@ fun commonChild(s1: String, s2: String): Int {
 		val n_charTLA2Inter = n_charTLA2.findOneWayIntersection(n_charTLA1)
 
 		if (debug) {
-			println("n=${n}, TLA1Inter=${n_charTLA1Inter.tileLists.size}")
-			println("n=${n}, TLA2Inter=${n_charTLA2Inter.tileLists.size}")
+			println("n=${n}, TLA1Inter=${n_charTLA1Inter}")
+			println("n=${n}, TLA2Inter=${n_charTLA2Inter}")
 		}
 
 		n++
