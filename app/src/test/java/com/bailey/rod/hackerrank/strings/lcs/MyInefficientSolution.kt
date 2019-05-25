@@ -176,6 +176,8 @@ fun concat(a: TileList, b: TileList): TileList {
 }
 
 // input01.txt = 15 (13 seconds)
+// input02.txt = 27 (out of memory)
+// input14.txt = 3 (62ms)
 class Scooby {
 	@Test
 	fun main() {
