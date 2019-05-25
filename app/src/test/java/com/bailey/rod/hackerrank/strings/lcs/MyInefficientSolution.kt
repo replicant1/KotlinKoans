@@ -140,8 +140,7 @@ fun commonChild(s1: String, s2: String): Int {
 fun crossProduct(prefixTLA: TileListArray, suffixTLA: TileListArray): TileListArray {
 	val result = TileListArray()
 
-	for (p in 0..prefixTLA.tileLists.size - 1) {
-		val prefix = prefixTLA.tileLists[p]
+	for (prefix in prefixTLA.tileLists) {
 		val lastTileInPrefix = prefix.tiles.last()
 		val suffixStartIdx = indexOf(lastTileInPrefix, suffixTLA) + 1
 
@@ -155,6 +154,9 @@ fun crossProduct(prefixTLA: TileListArray, suffixTLA: TileListArray): TileListAr
 	return result
 }
 
+/**
+ * @param tileListArray Assumed all tile lists have a single tile
+ */
 fun indexOf(tile: Tile, tileListArray: TileListArray): Int {
 	var result = -1
 	for ((index, tileList) in tileListArray.tileLists.withIndex()) {
@@ -178,7 +180,7 @@ class Scooby {
 	@Test
 	fun main() {
 		val scan = Scanner(File("/Users/rodbailey/AndroidStudioProjects/KotlinKoans/app/src/test/java/com" +
-				"/bailey/rod/hackerrank/strings/lcs/input/input01.txt"))
+				"/bailey/rod/hackerrank/strings/lcs/input/input14.txt"))
 		val s1 = scan.nextLine()
 		val s2 = scan.nextLine()
 		val result = commonChild(s1, s2)
