@@ -127,69 +127,40 @@ fun commonChild(s1: String, s2: String): Int {
 		println("onecharTLA2Inter: ${onecharTLA2Inter}")
 	}
 
-	// Generate TLAs for two character generation
-	val twocharTLA1 = crossProduct(onecharTLA1Inter, onecharTLA1Inter)
-	val twocharTLA2 = crossProduct(onecharTLA2Inter, onecharTLA2Inter)
+	var n_1charTLA1Inter = onecharTLA1Inter
+	var n_1charTLA2Inter = onecharTLA2Inter
+	var n = 1
 
-	if (debug) {
-		println("twocharsTLA1: ${twocharTLA1}")
-		println("twocharsTLA2: ${twocharTLA2}")
+	while (!n_1charTLA1Inter.tileLists.isEmpty() && !n_1charTLA2Inter.tileLists.isEmpty()) {
+		// Generate possible n-char substrings for each string
+		val n_charTLA1 = crossProduct(n_1charTLA1Inter, onecharTLA1Inter)
+		val n_charTLA2 = crossProduct(n_1charTLA2Inter, onecharTLA2Inter)
+
+		if (debug) {
+			println("n=${n}, TLA1=${n_charTLA1}")
+			println("n=${n}, TLA2=${n_charTLA2}")
+		}
+
+		// Find intersection of n-char substrings
+		val n_charTLA1Inter = n_charTLA1.findOneWayIntersection(n_charTLA2)
+		val n_charTLA2Inter = n_charTLA2.findOneWayIntersection(n_charTLA1)
+
+		if (debug) {
+			println("n=${n}, TLA1Inter=${n_charTLA1Inter}")
+			println("n=${n}, TLA2Inter=${n_charTLA2Inter}")
+		}
+
+		n++
+
+		n_1charTLA1Inter = n_charTLA1Inter
+		n_1charTLA2Inter = n_charTLA2Inter
 	}
 
-	// Fine tile lists in TLA1 whose string equiv is in TLA2
-	val twocharTLA1Inter = twocharTLA1.findOneWayIntersection(twocharTLA2)
-	val twocharTLA2Inter = twocharTLA2.findOneWayIntersection(twocharTLA1)
-
-	if (debug) {
-		println("twocharTLA1Inter: ${twocharTLA1Inter}")
-		println("twocharTLA2Inter: ${twocharTLA2Inter}")
-	}
-
-	// Generate TLAs for three character generation
-	val threecharTLA1 = crossProduct(twocharTLA1Inter, onecharTLA1Inter)
-	val threecharTLA2 = crossProduct(twocharTLA2Inter, onecharTLA2Inter)
-
-	if (debug) {
-		println("threecharTLA1: ${threecharTLA1}")
-		println("threecharTLA2: ${threecharTLA2}")
-	}
-
-	// Find tile lists in TLA1 whose string equiv is in TLA2
-	val threecharTLA1Inter = threecharTLA1.findOneWayIntersection(threecharTLA2)
-	val threecharTLA2Inter = threecharTLA2.findOneWayIntersection(threecharTLA1)
-
-	if (debug) {
-		println("threecharTLA1Inter: ${threecharTLA1Inter}")
-		println("threecharTLA2Inter: ${threecharTLA2Inter}")
-	}
-
-	// Generate TLAs for four character generation
-	val fourcharTLA1 = crossProduct(threecharTLA1Inter, onecharTLA1Inter)
-	val fourcharTLA2 = crossProduct(threecharTLA2Inter, onecharTLA2Inter)
-
-	if (debug) {
-		println("fourcharTLA1: ${fourcharTLA1}")
-		println("fourcharTLA2: ${fourcharTLA2}")
-	}
-
-	// Find tile lists in TLA1 whose strinfg equiv is in TLA2
-	val fourcharTLA1Inter = fourcharTLA1.findOneWayIntersection(fourcharTLA2)
-	val fourcharTLA2Inter = fourcharTLA2.findOneWayIntersection(fourcharTLA1)
-
-	if (debug) {
-		println("fourcharTLA1Inter: ${fourcharTLA1Inter}")
-		println("fourcharTLA2Inter: ${fourcharTLA2Inter}")
-	}
-
-
-	return 0
+	return n - 1
 }
 
 // All pairwise combinations
 fun crossProduct(prefixTLA: TileListArray, suffixTLA: TileListArray): TileListArray {
-	if (debug)
-		println("crossProduct: ${prefixTLA} and ${suffixTLA}")
-
 	val result = TileListArray()
 
 	for (p in 0..prefixTLA.tileLists.size - 1) {
@@ -203,16 +174,6 @@ fun crossProduct(prefixTLA: TileListArray, suffixTLA: TileListArray): TileListAr
 				result.add(concat(prefix, suffix))
 			}
 		}
-
-//		val tile_i = prefixTLA.tileLists[i].tiles.indexOf(lastTileInPrefix)
-
-//		for (j in i + 1..prefixTLA.tileLists.size - 1) {
-//			val tile_j = prefixTLA.tileLists[j].tiles[0]
-//			val ilist = TileList()
-//			ilist.add(tile_i)
-//			ilist.add(tile_j)
-//			result.add(ilist)
-//		}
 	}
 	return result
 }
@@ -228,7 +189,7 @@ fun indexOf(tile: Tile, tileListArray: TileListArray): Int {
 	return result
 }
 
-fun concat(a:TileList, b: TileList): TileList {
+fun concat(a: TileList, b: TileList): TileList {
 	val result = TileList()
 	result.add(a)
 	result.add(b)
