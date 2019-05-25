@@ -137,8 +137,8 @@ fun commonChild(s1: String, s2: String): Int {
 		val n_charTLA2 = crossProduct(n_1charTLA2Inter, onecharTLA2Inter)
 
 		if (debug) {
-			println("n=${n}, TLA1=${n_charTLA1}")
-			println("n=${n}, TLA2=${n_charTLA2}")
+			println("n=${n}, TLA1=${n_charTLA1.tileLists.size}")
+			println("n=${n}, TLA2=${n_charTLA2.tileLists.size}")
 		}
 
 		// Find intersection of n-char substrings
@@ -146,8 +146,8 @@ fun commonChild(s1: String, s2: String): Int {
 		val n_charTLA2Inter = n_charTLA2.findOneWayIntersection(n_charTLA1)
 
 		if (debug) {
-			println("n=${n}, TLA1Inter=${n_charTLA1Inter}")
-			println("n=${n}, TLA2Inter=${n_charTLA2Inter}")
+			println("n=${n}, TLA1Inter=${n_charTLA1Inter.tileLists.size}")
+			println("n=${n}, TLA2Inter=${n_charTLA2Inter.tileLists.size}")
 		}
 
 		n++
@@ -200,7 +200,7 @@ class Scooby {
 	@Test
 	fun main() {
 		val scan = Scanner(File("/Users/rodbailey/AndroidStudioProjects/KotlinKoans/app/src/test/java/com" +
-				"/bailey/rod/hackerrank/strings/lcs/input/input14.txt"))
+				"/bailey/rod/hackerrank/strings/lcs/input/input01.txt"))
 		val s1 = scan.nextLine()
 		val s2 = scan.nextLine()
 		val result = commonChild(s1, s2)
