@@ -4,7 +4,7 @@ import org.junit.Test
 import java.io.File
 import java.util.*
 
-const val debug = false
+const val debug = true
 
 data class Tile(val ch: Char, val idx: Int) {
 	override fun toString(): String {
@@ -86,8 +86,8 @@ fun commonChild(s1: String, s2: String): Int {
 	val onecharTLA2Inter = onecharTLA2.findOneWayIntersection(onecharTLA1)
 
 	if (debug) {
-		println("onecharTLA1Inter: ${onecharTLA1Inter}")
-		println("onecharTLA2Inter: ${onecharTLA2Inter}")
+		println("onecharTLA1Inter: ${onecharTLA1Inter.tileLists.size}")
+		println("onecharTLA2Inter: ${onecharTLA2Inter.tileLists.size}")
 	}
 
 	var n_1charTLA1Inter = onecharTLA1Inter
@@ -96,21 +96,28 @@ fun commonChild(s1: String, s2: String): Int {
 
 	while (!n_1charTLA1Inter.tileLists.isEmpty() && !n_1charTLA2Inter.tileLists.isEmpty()) {
 		// Generate possible n-char substrings for each string
+		val t0 = System.currentTimeMillis()
 		val n_charTLA1 = crossProduct(n_1charTLA1Inter, onecharTLA1Inter)
+		val t1 = System.currentTimeMillis()
 		val n_charTLA2 = crossProduct(n_1charTLA2Inter, onecharTLA2Inter)
 
 		if (debug) {
-			println("n=${n}, TLA1=${n_charTLA1}")
-			println("n=${n}, TLA2=${n_charTLA2}")
+			println("n=${n}, TLA1=${n_charTLA1.tileLists.size}")
+			println("n=${n}, TLA2=${n_charTLA2.tileLists.size}")
+			// xproduct takes 4 times longer than intersection
+			println("crossProduct time = ${t1 - t0}ms")
 		}
 
 		// Find intersection of n-char substrings
+		val t2 = System.currentTimeMillis()
 		val n_charTLA1Inter = n_charTLA1.findOneWayIntersection(n_charTLA2)
+		val t3 = System.currentTimeMillis()
 		val n_charTLA2Inter = n_charTLA2.findOneWayIntersection(n_charTLA1)
 
 		if (debug) {
-			println("n=${n}, TLA1Inter=${n_charTLA1Inter}")
-			println("n=${n}, TLA2Inter=${n_charTLA2Inter}")
+			println("n=${n}, TLA1Inter=${n_charTLA1Inter.tileLists.size}")
+			println("n=${n}, TLA2Inter=${n_charTLA2Inter.tileLists.size}")
+			println("onewayintersection time = ${t3 - t2}ms")
 		}
 
 		n++
@@ -122,7 +129,14 @@ fun commonChild(s1: String, s2: String): Int {
 	return n - 1
 }
 
-// All pairwise combinations
+/**
+ * @param prefixTLA All prefixes. Each tilelist contains at least one tile.
+ * @param suffixTLA All tilelists contain exactly one tile from the same tile set
+ * that formed the prefixes.
+ * @return A TLA where each TLA is formed by appending a suffix from [suffixTLA] to a
+ * prefix from [prefixTLA]. THe last tile in a prefix must precede the first tile in a suffix
+ * so as to preserve over all left->right ordering.
+ */
 fun crossProduct(prefixTLA: TileListArray, suffixTLA: TileListArray): TileListArray {
 	val result = TileListArray()
 
