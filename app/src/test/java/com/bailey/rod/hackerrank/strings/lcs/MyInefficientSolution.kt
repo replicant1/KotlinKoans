@@ -4,7 +4,7 @@ import org.junit.Test
 import java.io.File
 import java.util.*
 
-const val debug = true
+const val debug = false
 
 data class Tile(val ch: Char, val idx: Int) {
 	override fun toString(): String {
@@ -24,10 +24,6 @@ class TileList() {
 	fun add(other: TileList) {
 		tiles.addAll(other.tiles)
 		charString += other.charString
-	}
-
-	fun equals(str: String): Boolean {
-		return charString.equals(str)
 	}
 
 	fun getCharString(): String {
@@ -163,6 +159,7 @@ fun concat(a: TileList, b: TileList): TileList {
 	return result
 }
 
+// input01.txt = 15 (13 seconds)
 class Scooby {
 	@Test
 	fun main() {
