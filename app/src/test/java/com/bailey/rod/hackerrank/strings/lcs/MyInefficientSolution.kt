@@ -178,7 +178,7 @@ fun concat(a: TileList, b: TileList): TileList {
 // input01.txt = 15 (13 seconds)
 // input02.txt = 27 (out of memory)
 // input14.txt = 3 (62ms)
-class Scooby {
+class MyInefficientSolution {
 	@Test
 	fun main() {
 		val scan = Scanner(File("/Users/rodbailey/AndroidStudioProjects/KotlinKoans/app/src/test/java/com" +

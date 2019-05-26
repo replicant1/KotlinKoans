@@ -7,7 +7,7 @@ class LazyProperty(val initializer: () -> Int) {
     val lazy: Int = -1
         get() {
             if (!lazyIsInitialized) {
-                field = initializer()
+               // field = initializer()
                 lazyIsInitialized = true
             }
             return field
