@@ -19,21 +19,21 @@ fun isBalanced(s: String): String {
 		when (s[index]) {
 			'{', '[', '(' -> stack.add(0, s[index])
 			'}' -> {
-				if (stack[0] == '{') {
+				if (!stack.isEmpty() && stack[0] == '{') {
 					stack.removeAt(0)
 				} else {
 					mismatchFound = true
 				}
 			}
 			']' -> {
-				if (stack[0] == '[') {
+				if (!stack.isEmpty() && stack[0] == '[') {
 					stack.removeAt(0)
 				} else {
 					mismatchFound = true
 				}
 			}
 			')' -> {
-				if (stack[0] == '(') {
+				if (!stack.isEmpty() && stack[0] == '(') {
 					stack.removeAt(0)
 				} else {
 					mismatchFound = true
@@ -59,7 +59,7 @@ class BalancedBrackets {
 	@Test
 	fun main() {
 		val scan = Scanner(File("/Users/rodbailey/AndroidStudioProjects/KotlinKoans/app/src/test/java/com" +
-				"/bailey/rod/hackerrank/stacksandqueues/brackets/input/input20.txt"))
+				"/bailey/rod/hackerrank/stacksandqueues/brackets/input/input00.txt"))
 		val t = scan.nextLine().trim().toInt()
 		for (tItr in 1..t) {
 			val s = scan.nextLine()
