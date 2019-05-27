@@ -4,7 +4,7 @@ import org.junit.Test
 import java.io.File
 import java.util.*
 
-const val debug = true
+const val debug = false
 
 /**
  * @param subarrayLength Desired sub-array length
@@ -13,35 +13,34 @@ const val debug = true
  */
 fun maxMin(subarrayLength: Int, arr: Array<Int>): Int {
 
-	if (debug)
+	if (debug) {
 		println("subarrayLength=${subarrayLength}, arr=${arr.toList()}")
+		// lookForRepetition(arr)
+	}
 
 	arr.sort()
 
-	var leftIdx = 0
-	var rightIdx = arr.size - 1
+	if (debug)
+		println("After sorting, arr=${arr.toList()}")
 
-	while ((rightIdx - leftIdx + 1) > subarrayLength) {
-		val diffLeft = arr[rightIdx] - arr[leftIdx + 1]
-		val diffRight = arr[rightIdx - 1] - arr[leftIdx]
+	var minUnfairnesss = Integer.MAX_VALUE
 
-		if (diffRight < diffLeft) {
-			// Move right ptr one to the left, to rightIdx - 1
-			rightIdx = rightIdx - 1
-		} else {
-			// Move left ptr one to the right, to leftIdx + 1
-			leftIdx = leftIdx + 1
+	for (leftIdx in 0.. arr.size - subarrayLength) {
+		val rightIdx = leftIdx + subarrayLength - 1
+		val unfairness = arr[rightIdx] - arr[leftIdx]
+		if (unfairness < minUnfairnesss) {
+			minUnfairnesss = unfairness
 		}
 	}
 
-	return arr[rightIdx] - arr[leftIdx]
+	return minUnfairnesss
 }
 
 class MaxMin {
 	@Test
 	fun main() {
 		val scan = Scanner(File("/Users/rodbailey/AndroidStudioProjects/KotlinKoans/app/src/test/java/com" +
-				"/bailey/rod/hackerrank/greedy/maxmin/input/input15.txt"))
+				"/bailey/rod/hackerrank/greedy/maxmin/input/input16.txt"))
 		val n = scan.nextLine().trim().toInt()
 		val k = scan.nextLine().trim().toInt()
 		val arr = Array<Int>(n, { 0 })
