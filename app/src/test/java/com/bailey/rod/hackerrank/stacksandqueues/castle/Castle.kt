@@ -6,7 +6,7 @@ import java.util.*
 
 const val debug = false
 
-data class Square(val row: Int, val col: Int, val depth:Int) {
+data class Square(val row: Int, val col: Int, val depth: Int) {
 	override fun toString(): String {
 		return "(${row},${col})@${depth}"
 	}
@@ -22,17 +22,17 @@ fun minimumMoves(grid: Array<String>, startRow: Int, startCol: Int, goalRow: Int
 	// Element = square index = (row * col) + col, where row and col and zero-based
 	val queue = LinkedList<Square>()
 	val start = Square(startRow, startCol, 0)
+	var visited: Array<BooleanArray> = Array<BooleanArray>(grid.size, { BooleanArray(grid.size) })
 	var depth = 0
 
 	queue.add(start)
 
 	while (!queue.isEmpty()) {
 		val head = queue.get(0)
+		queue.removeAt(0)
 
 		if (debug)
 			println("--- Head: ${head} ---")
-
-		queue.removeAt(0)
 
 		if ((head.row == goalRow) && (head.col == goalCol)) {
 			if (debug)
@@ -41,11 +41,14 @@ fun minimumMoves(grid: Array<String>, startRow: Int, startCol: Int, goalRow: Int
 			break
 		}
 
-		val childDepth = head.depth + 1
-		queue.addAll(movesNorth(head, grid, childDepth)) // North
-		queue.addAll(movesSouth(head, grid, childDepth)) // South
-		queue.addAll(movesEast(head, grid, childDepth)) // East
-		queue.addAll(movesWest(head, grid, childDepth)) // West
+		if (!visited[head.row][head.col]) {
+			visited[head.row][head.col] = true
+			val childDepth = head.depth + 1
+			queue.addAll(movesNorth(head, grid, childDepth)) // North
+			queue.addAll(movesSouth(head, grid, childDepth)) // South
+			queue.addAll(movesEast(head, grid, childDepth)) // East
+			queue.addAll(movesWest(head, grid, childDepth)) // West
+		}
 
 	}
 	return depth
