@@ -24,15 +24,16 @@ fun roadsAndLibraries(numCities: Int, cost_lib: Int, cost_road: Int, roads: Arra
 	val cityPool = HashMap<Int, City>()
 
 	if (debug)
-		println("numCities=${numCities}, cost_lib=${cost_lib}, cost_road=${cost_road}, #roads=${roads.size}")
+		println("numCities=$numCities, cost_lib=${cost_lib}, cost_road=${cost_road}, #roads=${roads.size}")
 
+	// Special case - build a library for each city is cheapest, as roads are so expensive
 	if (cost_road >= cost_lib) {
-		return (cost_lib * numCities).toLong()
+		return cost_lib.toLong() * numCities.toLong()
 	}
 
 	for (i in 1..numCities) {
 		if (debug)
-			println("Creating city #${i}")
+			println("Creating city $i")
 		cityPool[i] = City(i, ArrayList(), false)
 	}
 
@@ -102,7 +103,7 @@ class Roads {
 	@Test
 	fun main() {
 		val scan = Scanner(File("/Users/rodbailey/AndroidStudioProjects/KotlinKoans/app/src/test/java/com" +
-				"/bailey/rod/hackerrank/graphs/roadsandlibs/input/input12.txt"))
+				"/bailey/rod/hackerrank/graphs/roadsandlibs/input/input03.txt"))
 		val q = scan.nextLine().trim().toInt()
 		for (qItr in 1..q) {
 			val nmC_libC_road = scan.nextLine().split(" ")
