@@ -128,7 +128,7 @@ class Queries {
 	fun main() {
 //		val bufReader = BufferedReader(InputStreamReader(System.`in`))
 		val bufReader = BufferedReader(FileReader("/Users/rodbailey/AndroidStudioProjects/KotlinKoans/app/src/test/java/com" +
-				"/bailey/rod/hackerrank/maps/queries/input09.txt"))
+				"/bailey/rod/hackerrank/maps/queries/input04.txt"))
 		val numQueries = bufReader.readLine().trim().toInt()
 		val queries = Array<Array<Int>>(numQueries, { Array<Int>(2, { 0 }) })
 
