@@ -5,7 +5,7 @@ import java.io.File
 import java.util.*
 import kotlin.collections.ArrayList
 
-const val debug = false
+const val debug = true
 
 data class City(val index: Int, val others: ArrayList<City>) {
 	override fun toString(): String {
@@ -20,6 +20,13 @@ data class City(val index: Int, val others: ArrayList<City>) {
  * @param roads Each element is a 2-element array [a,b], specifying an obstructed road from city a to city b
  */
 fun roadsAndLibraries(numCities: Int, cost_lib: Int, cost_road: Int, roads: Array<Array<Int>>): Long {
+	// Special case - build a library for each city is cheapest, as roads are so expensive
+	if (cost_road >= cost_lib) {
+		if (debug)
+			println("Special case of roads > libs cost")
+		return cost_lib.toLong() * numCities.toLong()
+	}
+
 	// Element [n] contains City with index n. Element [0] goes to waste.
 	val cities:Array<City?> = Array<City?>(numCities + 1, {null})
 	val unvisitedCityIndexes = HashSet<Int>()
@@ -27,21 +34,16 @@ fun roadsAndLibraries(numCities: Int, cost_lib: Int, cost_road: Int, roads: Arra
 	if (debug)
 		println("numCities=$numCities, cost_lib=${cost_lib}, cost_road=${cost_road}, #roads=${roads.size}")
 
-	// Special case - build a library for each city is cheapest, as roads are so expensive
-	if (cost_road >= cost_lib) {
-		return cost_lib.toLong() * numCities.toLong()
-	}
+
 
 	val t0 = System.currentTimeMillis()
 	for (i in 1..numCities) {
-//		if (debug)
-//			println("Creating city $i")
 		cities[i] = City(i, ArrayList())
 		unvisitedCityIndexes.add(i)
 	}
 	val t1 = System.currentTimeMillis()
-//	if (debug)
-//		println("City creation = ${t1 - t0} ms")
+	if (debug)
+		println("City creation inmemory = ${t1 - t0} ms")
 
 	for (road in roads) {
 		val fromCity = cities[road[0]]
@@ -49,14 +51,11 @@ fun roadsAndLibraries(numCities: Int, cost_lib: Int, cost_road: Int, roads: Arra
 		if ((fromCity != null) && (toCity != null)) {
 			fromCity.others.add(toCity)
 			toCity.others.add(fromCity)
-
-//			if (debug)
-//				println("Road from city ${fromCity.index} to ${toCity.index}")
 		}
 	}
 	val t2 = System.currentTimeMillis()
 	if (debug)
-		println("City creation = ${t2 - t1} ms")
+		println("Road creation = ${t2 - t1} ms")
 
 	var numSubgraphs = 0
 	var totalCost = 0.toLong()
@@ -84,13 +83,9 @@ fun roadsAndLibraries(numCities: Int, cost_lib: Int, cost_road: Int, roads: Arra
 			numSubgraphs++
 			var numCitiesInSubgraph = traverse(root, unvisitedCityIndexes)
 			val t21 = System.currentTimeMillis()
+
 			traverseTally += (t21 - t20)
 			val cost = cost_lib + (cost_road * (numCitiesInSubgraph - 1))
-
-//			if (debug) {
-//				println("Num cities in subgraph = ${numCitiesInSubgraph}")
-//				println("Cost for this subgraph = ${cost}")
-//			}
 
 			totalCost += cost
 		}
@@ -104,18 +99,7 @@ fun roadsAndLibraries(numCities: Int, cost_lib: Int, cost_road: Int, roads: Arra
 	return totalCost
 }
 
-//fun firstUnvisitedOrNull(cities: Array<City>, unvisitedCityIndexes: HashSet<Int>): City? {
-//	for (city in cities) {
-//		if ((city != null) && !city.visited)
-//			return city
-//	}
-//	return null
-//}
-
 fun traverse(root: City, unvisitedCityIndexes:HashSet<Int>): Int {
-//	if (debug)
-//		println("--- TRAVERSAL ON CITY ${root.index} BEGINS ---")
-//	root.visited = true
 	unvisitedCityIndexes.remove(root.index)
 	var citiesVisited = 1
 	for (other in root.others) {
@@ -126,11 +110,12 @@ fun traverse(root: City, unvisitedCityIndexes:HashSet<Int>): Int {
 	return citiesVisited
 }
 
+// Timeouts: 2,4,5,6,8,9,10
 class Roads {
 	@Test
 	fun main() {
 		val scan = Scanner(File("/Users/rodbailey/AndroidStudioProjects/KotlinKoans/app/src/test/java/com" +
-				"/bailey/rod/hackerrank/graphs/roadsandlibs/input/input11.txt"))
+				"/bailey/rod/hackerrank/graphs/roadsandlibs/input/input02.txt"))
 		val q = scan.nextLine().trim().toInt()
 		for (qItr in 1..q) {
 			val s0 = System.currentTimeMillis()
@@ -149,7 +134,7 @@ class Roads {
 			val result = roadsAndLibraries(n, c_lib, c_road, cities)
 			val s2 = System.currentTimeMillis()
 			if (debug)
-				println("Figuring time is ${s2 - s1} ms")
+				println("Total calculation time is ${s2 - s1} ms")
 			println(result)
 		}
 	}
