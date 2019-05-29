@@ -1,7 +1,9 @@
 package com.bailey.rod.hackerrank.graphs.roadsandlibs
 
 import org.junit.Test
+import java.io.BufferedReader
 import java.io.File
+import java.io.FileReader
 import java.util.*
 import kotlin.collections.ArrayList
 
@@ -12,6 +14,8 @@ data class City(val index: Int, val others: ArrayList<City>) {
 		return "City ${index}"
 	}
 }
+
+val DEFAULT_CITY = City(-1, ArrayList())
 
 /**
  * @param numCities Number of cities. Cities have a one-based index.
@@ -28,60 +32,50 @@ fun roadsAndLibraries(numCities: Int, cost_lib: Int, cost_road: Int, roads: Arra
 	}
 
 	// Element [n] contains City with index n. Element [0] goes to waste.
-	val cities:Array<City?> = Array<City?>(numCities + 1, {null})
-	val unvisitedCityIndexes = HashSet<Int>()
+	val cities: Array<City> = Array(numCities + 1, { DEFAULT_CITY })
+	val unvisitedCities = LinkedList<City>()
 
 	if (debug)
 		println("numCities=$numCities, cost_lib=${cost_lib}, cost_road=${cost_road}, #roads=${roads.size}")
 
-
-
 	val t0 = System.currentTimeMillis()
 	for (i in 1..numCities) {
 		cities[i] = City(i, ArrayList())
-		unvisitedCityIndexes.add(i)
+		unvisitedCities.add(cities[i])
 	}
 	val t1 = System.currentTimeMillis()
+
 	if (debug)
-		println("City creation inmemory = ${t1 - t0} ms")
+		println("City creation in memory = ${t1 - t0} ms")
 
 	for (road in roads) {
 		val fromCity = cities[road[0]]
 		val toCity = cities[road[1]]
-		if ((fromCity != null) && (toCity != null)) {
-			fromCity.others.add(toCity)
-			toCity.others.add(fromCity)
-		}
+		fromCity.others.add(toCity)
+		toCity.others.add(fromCity)
 	}
+
 	val t2 = System.currentTimeMillis()
 	if (debug)
 		println("Road creation = ${t2 - t1} ms")
 
-	var numSubgraphs = 0
 	var totalCost = 0.toLong()
-	var firstUnvisitedTally:Long = 0
-	var traverseTally:Long = 0
+	var unvisitedCitiesTally: Long = 0
+	var traverseTally: Long = 0
 
 	do {
 		val t10 = System.currentTimeMillis()
-		val iter = unvisitedCityIndexes.iterator()
-
-		var rootIndex = iter.next()
-		val root = cities[rootIndex]
-		iter.remove()
+		val root = unvisitedCities.removeFirst()
 		val t11 = System.currentTimeMillis()
-		firstUnvisitedTally += (t11 - t10)
+		unvisitedCitiesTally += (t11 - t10)
 
-
-		if (debug) {
-			println("Into 'do' loop: numSubgraphs = ${numSubgraphs}")
-			println("First unvisited city is ${root}")
-		}
+//		if (debug) {
+//			println("First unvisited city is ${root}")
+//		}
 
 		if (root != null) {
 			val t20 = System.currentTimeMillis()
-			numSubgraphs++
-			var numCitiesInSubgraph = traverse(root, unvisitedCityIndexes)
+			var numCitiesInSubgraph = traverse(root, unvisitedCities)
 			val t21 = System.currentTimeMillis()
 
 			traverseTally += (t21 - t20)
@@ -89,44 +83,47 @@ fun roadsAndLibraries(numCities: Int, cost_lib: Int, cost_road: Int, roads: Arra
 
 			totalCost += cost
 		}
-	} while ((root != null) && unvisitedCityIndexes.isNotEmpty())
+	} while ((root != null) && unvisitedCities.isNotEmpty())
 
 	if (debug) {
-		println("firstUnvisitedTally = $firstUnvisitedTally")
+		println("firstUnvisitedTally = $unvisitedCitiesTally")
 		println("traverseTally = $traverseTally")
 	}
 
 	return totalCost
 }
 
-fun traverse(root: City, unvisitedCityIndexes:HashSet<Int>): Int {
-	unvisitedCityIndexes.remove(root.index)
+fun traverse(root: City, unvisitedCities: LinkedList<City>): Int {
+	unvisitedCities.remove(root)
 	var citiesVisited = 1
 	for (other in root.others) {
-		if (unvisitedCityIndexes.contains(other.index)) {
-			citiesVisited += traverse(other, unvisitedCityIndexes)
+		if (unvisitedCities.contains(other)) {
+			citiesVisited += traverse(other, unvisitedCities)
 		}
 	}
 	return citiesVisited
 }
 
+//		val bufReader = BufferedReader(InputStreamReader(System.`in`))
 // Timeouts: 2,4,5,6,8,9,10
 class Roads {
 	@Test
 	fun main() {
-		val scan = Scanner(File("/Users/rodbailey/AndroidStudioProjects/KotlinKoans/app/src/test/java/com" +
-				"/bailey/rod/hackerrank/graphs/roadsandlibs/input/input02.txt"))
-		val q = scan.nextLine().trim().toInt()
+		// Much time is being consumed in input. Use same solu'n as prev (buffers) to speed this up.
+		val bufReader = BufferedReader(FileReader("/Users/rodbailey/AndroidStudioProjects/KotlinKoans/app/src/test" +
+				"/java/com" +
+				"/bailey/rod/hackerrank/graphs/roadsandlibs/input/input04.txt"))
+		val q = bufReader.readLine().trim().toInt()
 		for (qItr in 1..q) {
 			val s0 = System.currentTimeMillis()
-			val nmC_libC_road = scan.nextLine().split(" ")
+			val nmC_libC_road = bufReader.readLine().split(" ")
 			val n = nmC_libC_road[0].trim().toInt()
 			val m = nmC_libC_road[1].trim().toInt()
 			val c_lib = nmC_libC_road[2].trim().toInt()
 			val c_road = nmC_libC_road[3].trim().toInt()
 			val cities = Array<Array<Int>>(m, { Array<Int>(2, { 0 }) })
 			for (i in 0 until m) {
-				cities[i] = scan.nextLine().split(" ").map { it.trim().toInt() }.toTypedArray()
+				cities[i] = bufReader.readLine().split(" ").map { it.trim().toInt() }.toTypedArray()
 			}
 			val s1 = System.currentTimeMillis()
 			if (debug)
