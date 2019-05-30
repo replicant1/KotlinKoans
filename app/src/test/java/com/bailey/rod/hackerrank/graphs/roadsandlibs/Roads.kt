@@ -19,6 +19,7 @@ data class City(val index: Int, val others: ArrayList<City>, var visited: Boolea
 		return sb.toString()
 	}
 }
+
 val NULL_CITY = City(-1, ArrayList(), false)
 
 /**
@@ -28,6 +29,9 @@ val NULL_CITY = City(-1, ArrayList(), false)
  * @param roads Each element is a 2-element array [a,b], specifying an obstructed road from city a to city b
  */
 fun roadsAndLibraries(numCities: Int, cost_lib: Int, cost_road: Int, roads: Array<Array<Int>>): Long {
+	if (debug)
+		println("numCities=$numCities, cost_lib=${cost_lib}, cost_road=${cost_road}, #roads=${roads.size}")
+
 	// Special case - build a library for each city is cheapest, as roads are so expensive
 	if (cost_road >= cost_lib) {
 		if (debug)
@@ -35,14 +39,17 @@ fun roadsAndLibraries(numCities: Int, cost_lib: Int, cost_road: Int, roads: Arra
 		return cost_lib.toLong() * numCities.toLong()
 	}
 
-	if (debug)
-		println("numCities=$numCities, cost_lib=${cost_lib}, cost_road=${cost_road}, #roads=${roads.size}")
-
+	var totalCost = 0.toLong()
+	var unvisitedCitiesTallyMs: Long = 0
+	var traverseTallyMs: Long = 0
+	val unvisitedCityNums = LinkedHashSet<Int>()
 	// Element [n] contains City with index n. Element [0] goes to waste and is NULL_CITY
-	val cities: Array<City> = Array(numCities + 1, { NULL_CITY })
+	val cities: Array<City> = Array(numCities + 1) { NULL_CITY }
+
 	val t0 = System.currentTimeMillis()
 	for (i in 1..numCities) {
 		cities[i] = City(i, ArrayList(), false)
+		unvisitedCityNums.add(i)
 	}
 	val t1 = System.currentTimeMillis()
 
@@ -58,76 +65,65 @@ fun roadsAndLibraries(numCities: Int, cost_lib: Int, cost_road: Int, roads: Arra
 	val t2 = System.currentTimeMillis()
 	if (debug) {
 		println("Road creation = ${t2 - t1} ms")
-		for (city in cities)
-			println("${city}")
 	}
-
-	var totalCost = 0.toLong()
-	var unvisitedCitiesTally: Long = 0
-	var traverseTally: Long = 0
 
 	do {
 		val t10 = System.currentTimeMillis()
-		val root = nextUnvisited(cities)
+		val rootCityNum = unvisitedCityNums.firstOrNull()
 		val t11 = System.currentTimeMillis()
-		unvisitedCitiesTally += (t11 - t10)
+		unvisitedCitiesTallyMs += (t11 - t10)
 
 		if (debug) {
-			println("First unvisited city is ${root}")
+			println("First unvisited city is ${rootCityNum}")
 		}
 
-		if (root != null) {
+		if (rootCityNum != null) {
 			val t20 = System.currentTimeMillis()
-			var numCitiesInSubgraph = traverse(root)
+			val root = cities[rootCityNum]
+			var numCitiesInSubgraph = traverse(root, unvisitedCityNums)
 
 			if (debug)
 				println("numCitiesInSubgraph=${numCitiesInSubgraph}")
 
 			val t21 = System.currentTimeMillis()
 
-			traverseTally += (t21 - t20)
+			traverseTallyMs += (t21 - t20)
 			val cost = cost_lib + (cost_road * (numCitiesInSubgraph - 1))
 
 			totalCost += cost
 		}
-	} while (root != null)
+	} while (rootCityNum != null)
 
 	if (debug) {
-		println("firstUnvisitedTally = $unvisitedCitiesTally")
-		println("traverseTally = $traverseTally")
+		println("unvisitedCitiesTally = $unvisitedCitiesTallyMs ms")
+		println("traverseTally = $traverseTallyMs ms")
 	}
 
 	return totalCost
 }
 
-fun nextUnvisited(cities: Array<City>): City? {
-	for (index in 1..cities.size - 1) {
-		val city = cities[index]
-		if (!city.visited)
-			return city
-	}
-	return null
-}
-
-fun traverse(root: City): Int {
+fun traverse(root: City, unvisitedCityNums: HashSet<Int>): Int {
+	// This is the only placd visited = true. Remove from 'unvisited' set/list/array here.
 	root.visited = true
+	unvisitedCityNums.remove(root.index)
 	var citiesVisited = 1
 	for (other in root.others) {
 		if (!other.visited) {
-			citiesVisited += traverse(other)
+			citiesVisited += traverse(other, unvisitedCityNums)
 		}
 	}
 	return citiesVisited
 }
 
 // val bufReader = BufferedReader(InputStreamReader(System.`in`))
-// Timeouts: 2,4,5,6,8,9,10
+// Timeouts: 4,5,6,8,9,10
+// input04 = 39.832 secs
 class Roads {
 	@Test
 	fun main() {
 		// Much time is being consumed in input. Use same solu'n as prev (buffers) to speed this up.
 		val bufReader = BufferedReader(FileReader("/Users/rodbailey/AndroidStudioProjects/KotlinKoans/app/src/test" +
-				"/java/com/bailey/rod/hackerrank/graphs/roadsandlibs/input/input03.txt"))
+				"/java/com/bailey/rod/hackerrank/graphs/roadsandlibs/input/input12.txt"))
 		val q = bufReader.readLine().trim().toInt()
 		for (qItr in 1..q) {
 			val s0 = System.currentTimeMillis()
