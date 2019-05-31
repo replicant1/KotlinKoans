@@ -1,7 +1,5 @@
 package com.bailey.rod.hackerrank.trees.lowancestor;
 
-import org.jetbrains.annotations.Nullable;
-
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.Scanner;
@@ -67,46 +65,62 @@ class Solution {
 	 */
 	public static Node lca(Node root, int v1, int v2) {
 		Token token = new Token(false, false, null);
+		trace("Calling traverse() with v1=" + v1 + ", v2=" + v2);
 		Token resultToken = traverse(root, v1, v2);
 		return resultToken.lca;
 	}
 
 	public static Token traverse(Node node, int v1, int v2) {
-		trace("Into traverse with node=" + node + " and v1=" + v1 + " and v2=" + v2);
+		trace(node.toString());
 
-		if (node == null) {
-			return new Token();
+		Token leftToken = new Token();
+		if (node.left != null) {
+			leftToken = traverse(node.left, v1, v2);
 		}
+		trace(node + ": leftToken=" + leftToken);
 
-		Token leftToken = traverse(node.left, v1, v2);
-		trace("When node = " + node + ", leftToken=" + leftToken);
+		Token rightToken = new Token();
+		if (node.right != null) {
+			rightToken = traverse(node.right, v1, v2);
+		}
+		trace(node + ": rightToken=" + rightToken);
 
-		Token rightToken = traverse(node.right, v1, v2);
-		trace("When node = " + node + ", rightToken=" + rightToken);
-
+		// Merge tokens from left and right subtrees and pass up tree via
+		// returned result token.
 		boolean resultV1Found = leftToken.v1Found || rightToken.v1Found;
 		boolean resultV2Found = leftToken.v2Found || rightToken.v2Found;
 		Node resultLCA = null;
 
+		if (leftToken.lca != null) {
+			resultLCA = leftToken.lca;
+		} else if (rightToken.lca != null) {
+			resultLCA = rightToken.lca;
+		}
+
 		if (node.data == v1) {
 			resultV1Found = true;
-			trace("*** Found v1 (" + v1 + ") at " + node + " ***");
+			trace(node + ": *** Found v1 (" + v1 + ") at " + node + " ***");
 		} else if (node.data == v2) {
-			trace("*** Found v2 (" + v2 + ") at " + node + " ***");
+			trace(node + ": *** Found v2 (" + v2 + ") at " + node + " ***");
 			resultV2Found = true;
 		}
 
 		if ((leftToken.v1Found && rightToken.v2Found) || (leftToken.v2Found && rightToken.v1Found)) {
-			trace("*** Found LCA at node " + node.data + " ***");
+			trace(node + ": *** Found LCA at node " + node.data + " ***");
 			resultLCA = node;
 		}
 
-		if ((resultV1Found) && (resultV2Found)) {
+		if ((leftToken.v1Found && node.data == v2) || (leftToken.v2Found && node.data == v1)) {
 			resultLCA = node;
 		}
+
+		if ((rightToken.v1Found && (node.data == v2)) || (rightToken.v2Found && node.data == v1)) {
+			resultLCA = node;
+		}
+
 
 		Token result = new Token(resultV1Found, resultV2Found, resultLCA);
-		trace("When node=" + node + ", result token=" + result);
+		trace(node + ": RESULT token=" + result);
 		return result;
 	}
 
@@ -128,7 +142,7 @@ class Solution {
 
 	public static void main(String[] args) throws FileNotFoundException {
 		Scanner scan = new Scanner(new File("/Users/rodbailey/AndroidStudioProjects/KotlinKoans/app/src/test" +
-				"/java/com/bailey/rod/hackerrank/trees/lowancestor/input/input05.txt"));
+				"/java/com/bailey/rod/hackerrank/trees/lowancestor/input/input08.txt"));
 		int t = scan.nextInt();
 		Node root = null;
 		while (t-- > 0) {
